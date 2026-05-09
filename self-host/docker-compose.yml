@@ -1,6 +1,7 @@
 services:
   wwv:
     image: ghcr.io/silvertakana/worldwideview:latest
+    pull_policy: always
     ports:
       - "3000:3000"
     volumes:

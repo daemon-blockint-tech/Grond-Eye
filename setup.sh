@@ -41,6 +41,9 @@ else
 fi
 
 # 3. Start it
+echo "📥 Pulling latest image updates..."
+docker compose pull
+
 echo "🚀 Starting Docker container..."
 docker compose up -d
 

@@ -39,6 +39,9 @@ if (-Not (Test-Path .env)) {
     Write-Host "[Success] .env already exists, skipping generation."
 }
 
+Write-Host "[*] Pulling latest image updates..."
+docker compose pull
+
 Write-Host "[*] Starting Docker container..."
 docker compose up -d
 
