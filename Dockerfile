@@ -49,6 +49,7 @@ FROM node:26-alpine AS runner
 WORKDIR /app
 
 RUN apk add --no-cache openssl
+RUN npm install -g prisma@7.5.0
 
 ENV NODE_ENV=production
 ENV HOSTNAME=0.0.0.0
