@@ -3,7 +3,7 @@
     align-items: center;
 }
 
-.time-dropdown {
+.dropdown-menu {
     position: fixed;
     top: calc(100% + 8px);
     right: 0;
@@ -21,7 +21,7 @@
     gap: 2px;
 }
 
-.time-option {
+.dropdown-option {
     padding: 8px 12px;
     border-radius: 8px;
     cursor: pointer;
@@ -34,14 +34,14 @@
     text-align: center;
 }
 
-.time-option:hover {
+.dropdown-option:hover {
     color: var(--text-primary);
     background: var(--bg-glass-hover);
     box-shadow: var(--glass-shadow-inner);
     transform: scale(0.98);
 }
 
-.time-option.active {
+.dropdown-option.active {
     color: var(--accent-cyan, #63b3ed);
     background: var(--bg-glass-active);
     border: 1px solid rgba(var(--accent-rgb), 0.3);

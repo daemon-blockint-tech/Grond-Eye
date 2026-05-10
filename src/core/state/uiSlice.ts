@@ -15,7 +15,7 @@ export interface FloatingStream {
 }
 
 export interface UISlice {
-    theme: "dark" | "light";
+    theme: "dark" | "light" | "legacy" | "black";
     leftSidebarOpen: boolean;
     rightSidebarOpen: boolean;
     configPanelOpen: boolean;
@@ -30,7 +30,7 @@ export interface UISlice {
     openMobilePanel: "left" | "right" | null;
     mobileRightPanelGlow: boolean;
     toggleTheme: () => void;
-    setTheme: (theme: "dark" | "light") => void;
+    setTheme: (theme: "dark" | "light" | "legacy" | "black") => void;
     toggleLeftSidebar: () => void;
     toggleRightSidebar: () => void;
     toggleConfigPanel: () => void;
@@ -53,7 +53,7 @@ export interface UISlice {
 }
 
 export const createUISlice: StateCreator<AppStore, [], [], UISlice> = (set) => ({
-    theme: "dark",
+    theme: typeof window !== "undefined" ? (localStorage.getItem("wwv-theme") as any) || "black" : "black",
     leftSidebarOpen: true,
     rightSidebarOpen: false,
     configPanelOpen: true,
@@ -69,11 +69,16 @@ export const createUISlice: StateCreator<AppStore, [], [], UISlice> = (set) => (
     mobileRightPanelGlow: false,
     feedbackDialogOpen: false,
     toggleTheme: () => set((state) => {
-        const newTheme = state.theme === "dark" ? "light" : "dark";
-        // Optionally save to localStorage here if not using middleware, but we'll do it in a useEffect or middleware ideally
-        try { localStorage.setItem("wwv-theme", newTheme); } catch (e) {}
-        document.documentElement.setAttribute('data-theme', newTheme);
-        return { theme: newTheme };
+        const nextTheme = {
+            "dark": "black",
+            "black": "light",
+            "light": "legacy",
+            "legacy": "dark"
+        }[state.theme] as "dark" | "light" | "legacy" | "black";
+        
+        try { localStorage.setItem("wwv-theme", nextTheme); } catch (e) {}
+        document.documentElement.setAttribute('data-theme', nextTheme);
+        return { theme: nextTheme };
     }),
     setTheme: (theme) => set(() => {
         try { localStorage.setItem("wwv-theme", theme); } catch (e) {}

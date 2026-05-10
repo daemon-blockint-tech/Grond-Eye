@@ -3,16 +3,15 @@
 import React, { useState, useRef, useCallback } from "react";
 import { RotateCcw } from "lucide-react";
 
-interface PannableImageProps {
-    src: string;
-    alt: string;
+interface PannableViewProps {
+    children: React.ReactNode;
 }
 
 const MIN_ZOOM = 1;
 const MAX_ZOOM = 8;
 const ZOOM_STEP = 0.15;
 
-export const PannableImage: React.FC<PannableImageProps> = ({ src, alt }) => {
+export const PannableView: React.FC<PannableViewProps> = ({ children }) => {
     const [zoom, setZoom] = useState(1);
     const [pan, setPan] = useState({ x: 0, y: 0 });
     const [isPanning, setIsPanning] = useState(false);
@@ -146,10 +145,11 @@ export const PannableImage: React.FC<PannableImageProps> = ({ src, alt }) => {
         }
     }, []);
 
-    const handleReset = useCallback(() => {
+    const handleReset = (e: React.MouseEvent) => {
+        e.stopPropagation();
         setZoom(1);
         setPan({ x: 0, y: 0 });
-    }, []);
+    };
 
     const isZoomed = zoom > 1.01;
 
@@ -171,21 +171,20 @@ export const PannableImage: React.FC<PannableImageProps> = ({ src, alt }) => {
                 userSelect: "none",
             }}
         >
-            <img
-                src={src}
-                alt={alt}
-                draggable={false}
+            <div
                 style={{
                     width: "100%",
                     height: "100%",
-                    objectFit: "contain",
-                    display: "block",
                     transform: `scale(${zoom}) translate(${pan.x}%, ${pan.y}%)`,
                     transformOrigin: "center center",
                     transition: isPanning ? "none" : "transform 0.15s ease-out",
-                    pointerEvents: "none",
+                    // Allow children to receive pointer events only when not panning/zooming.
+                    // If zoom > 1, we capture drags, so we may need pointer-events: none on children to avoid them eating the drag
+                    pointerEvents: isZoomed ? "none" : "auto",
                 }}
-            />
+            >
+                {children}
+            </div>
 
             {/* Zoom level indicator */}
             {isZoomed && (
@@ -195,12 +194,12 @@ export const PannableImage: React.FC<PannableImageProps> = ({ src, alt }) => {
                     left: 8,
                     fontSize: 11,
                     fontFamily: "var(--font-mono)",
-                    color: "rgba(255,255,255,0.7)",
-                    background: "rgba(0,0,0,0.5)",
-                    backdropFilter: "blur(6px)",
+                    color: "var(--text-secondary)",
+                    background: "var(--bg-glass)",
+                    backdropFilter: "blur(var(--glass-blur))",
                     padding: "2px 8px",
                     borderRadius: "var(--radius-sm)",
-                    border: "1px solid rgba(255,255,255,0.1)",
+                    border: "1px solid var(--border-subtle)",
                     pointerEvents: "none",
                 }}>
                     {zoom.toFixed(1)}×
@@ -219,14 +218,22 @@ export const PannableImage: React.FC<PannableImageProps> = ({ src, alt }) => {
                         width: 26,
                         height: 26,
                         borderRadius: "var(--radius-sm)",
-                        background: "rgba(0,0,0,0.5)",
-                        backdropFilter: "blur(6px)",
-                        border: "1px solid rgba(255,255,255,0.15)",
-                        color: "rgba(255,255,255,0.7)",
+                        background: "var(--bg-glass)",
+                        backdropFilter: "blur(var(--glass-blur))",
+                        border: "1px solid var(--border-subtle)",
+                        color: "var(--text-secondary)",
                         cursor: "pointer",
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
+                    }}
+                    onMouseEnter={(e) => {
+                        e.currentTarget.style.color = "var(--text-primary)";
+                        e.currentTarget.style.background = "var(--bg-glass-hover)";
+                    }}
+                    onMouseLeave={(e) => {
+                        e.currentTarget.style.color = "var(--text-secondary)";
+                        e.currentTarget.style.background = "var(--bg-glass)";
                     }}
                 >
                     <RotateCcw size={12} />
@@ -235,3 +242,4 @@ export const PannableImage: React.FC<PannableImageProps> = ({ src, alt }) => {
         </div>
     );
 };
+

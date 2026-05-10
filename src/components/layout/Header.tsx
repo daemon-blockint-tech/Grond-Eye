@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useStore } from "@/core/state/store";
 import { dataBus } from "@/core/data/DataBus";
 import { pluginManager } from "@/core/plugins/PluginManager";
-import { Globe, Key, Sun, Moon } from "lucide-react";
+import { Globe, Key, Sun, Moon, Monitor } from "lucide-react";
 import { trackEvent } from "@/lib/analytics";
 import { isDemo, DEMO_ADMIN_ROLE } from "@/core/edition";
 
@@ -24,6 +24,13 @@ const REGIONS = [
     { id: "arctic", label: "Arctic", icon: Globe },
 ];
 
+const THEMES = [
+    { id: "dark", label: "Dark", icon: Moon },
+    { id: "black", label: "Black", icon: Moon },
+    { id: "light", label: "Light", icon: Sun },
+    { id: "legacy", label: "Legacy", icon: Monitor },
+] as const;
+
 const TIME_WINDOWS = ["1h", "6h", "24h", "48h", "7d"] as const;
 
 export function Header() {
@@ -31,7 +38,7 @@ export function Header() {
     const timeWindow = useStore((s) => s.timeWindow);
     const setTimeWindow = useStore((s) => s.setTimeWindow);
     const theme = useStore((s) => s.theme);
-    const toggleTheme = useStore((s) => s.toggleTheme);
+    const setTheme = useStore((s) => s.setTheme);
 
     const scrollContainerRef = useRef<HTMLDivElement>(null);
     const [isDemoAdmin, setIsDemoAdmin] = useState(false);
@@ -41,6 +48,10 @@ export function Header() {
     const timeRef = useRef<HTMLDivElement>(null);
     const timeButtonRef = useRef<HTMLButtonElement>(null);
     const [timePos, setTimePos] = useState({ top: 0, right: 0 });
+
+    const [themeOpen, setThemeOpen] = useState(false);
+    const themeButtonRef = useRef<HTMLButtonElement>(null);
+    const [themePos, setThemePos] = useState({ top: 0, right: 0 });
 
     useEffect(() => {
         if (!isDemo) return;
@@ -68,6 +79,7 @@ export function Header() {
     // Mobile: compact header with persistent centered search
     if (isMobile) {
         return (
+            <>
             <header className="header header--mobile glass-panel">
                 <div className="header__brand">
                     <a href="https://worldwideview.dev/" target="_blank" rel="noopener noreferrer" style={{ display: "flex", alignItems: "center", gap: "8px", textDecoration: "none", color: "inherit" }}>
@@ -83,27 +95,68 @@ export function Header() {
                 </div>
 
                 <div className="header__actions" style={{ display: "flex", gap: "8px", alignItems: "center" }}>
-                    <button
-                        className="btn btn--glow"
-                        onClick={toggleTheme}
-                        title={theme === "dark" ? "Light Mode" : "Dark Mode"}
-                        style={{
-                            display: "flex",
-                            alignItems: "center",
-                            padding: "6px",
-                            background: "transparent",
-                            border: "none",
-                            color: "var(--text-secondary)"
-                        }}
-                    >
-                        {theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
-                    </button>
+                    <div style={{ position: "relative" }}>
+                        <button
+                            ref={themeButtonRef}
+                            className="btn btn--glow"
+                            onClick={() => {
+                                if (!themeOpen && themeButtonRef.current) {
+                                    const rect = themeButtonRef.current.getBoundingClientRect();
+                                    setThemePos({
+                                        top: rect.bottom + 8,
+                                        right: window.innerWidth - (rect.right + 2),
+                                    });
+                                }
+                                setThemeOpen((v) => !v);
+                            }}
+                            title="Theme Selection"
+                            style={{
+                                display: "flex",
+                                alignItems: "center",
+                                padding: "6px",
+                                background: "transparent",
+                                border: "none",
+                                color: "var(--text-secondary)",
+                                gap: "4px"
+                            }}
+                        >
+                            {theme === "dark" && <Moon size={16} />}
+                            {theme === "black" && <Moon size={16} />}
+                            {theme === "light" && <Sun size={16} />}
+                            {theme === "legacy" && <Monitor size={16} />}
+                            <svg width="10" height="10" viewBox="0 0 10 10" style={{ transform: themeOpen ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.2s ease", opacity: 0.6 }}>
+                                <path d="M1 3 L5 7 L9 3" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+                            </svg>
+                        </button>
+                    </div>
                     <div className="status-badge">
                         <span className="status-badge__dot" />
                         LIVE
                     </div>
                 </div>
             </header>
+            {themeOpen && (
+                <div className="dropdown-menu" style={{ top: themePos.top, right: themePos.right - 2 }}>
+                    {THEMES.map((th) => {
+                        const Icon = th.icon;
+                        return (
+                            <div
+                                key={th.id}
+                                className={`dropdown-option ${th.id === theme ? "active" : ""}`}
+                                style={{ display: "flex", alignItems: "center", gap: "8px", justifyContent: "flex-start" }}
+                                onClick={() => {
+                                    setTheme(th.id);
+                                    setThemeOpen(false);
+                                }}
+                            >
+                                <Icon size={14} />
+                                {th.label}
+                            </div>
+                        );
+                    })}
+                </div>
+            )}
+        </>
         );
     }
 
@@ -129,21 +182,24 @@ export function Header() {
             </div>
             <div className="header__controls">
                 <div className="header__controls-scroll" ref={scrollContainerRef}>
-                    {REGIONS.map((r) => (
-                        <button
-                            key={r.id}
-                            className="btn btn--glow"
-                            onClick={() => {
-                                dataBus.emit("cameraPreset", { presetId: r.id });
-                                trackEvent("region-select", { region: r.id });
-                            }}
-                            title={r.label}
-                            style={{ display: "flex", alignItems: "center", gap: "6px", flexShrink: 0 }}
-                        >
-                            <r.icon size={14} />
-                            {r.label}
-                        </button>
-                    ))}
+                    {REGIONS.map((r) => {
+                        const Icon = r.icon;
+                        return (
+                            <button
+                                key={r.id}
+                                className="btn btn--glow"
+                                onClick={() => {
+                                    dataBus.emit("cameraPreset", { presetId: r.id });
+                                    trackEvent("region-select", { region: r.id });
+                                }}
+                                title={r.label}
+                                style={{ display: "flex", alignItems: "center", gap: "6px", flexShrink: 0 }}
+                            >
+                                <Icon size={14} />
+                                {r.label}
+                            </button>
+                        );
+                    })}
                     <div style={{ width: 1, height: 20, background: "var(--border-subtle)", flexShrink: 0 }} />
                     <button
                         className="btn btn--glow"
@@ -157,18 +213,36 @@ export function Header() {
                     >
                         <Key size={14} />
                     </button>
-                    <button
-                        className="btn btn--glow"
-                        onClick={toggleTheme}
-                        title={theme === "dark" ? "Light Mode" : "Dark Mode"}
-                        style={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: "6px",
-                        }}
-                    >
-                        {theme === "dark" ? <Sun size={14} /> : <Moon size={14} />}
-                    </button>
+                    <div style={{ position: "relative", flexShrink: 0 }}>
+                        <button
+                            ref={themeButtonRef}
+                            className="btn btn--glow"
+                            onClick={() => {
+                                if (!themeOpen && themeButtonRef.current) {
+                                    const rect = themeButtonRef.current.getBoundingClientRect();
+                                    setThemePos({
+                                        top: rect.bottom + 8,
+                                        right: window.innerWidth - (rect.right + 2),
+                                    });
+                                }
+                                setThemeOpen((v) => !v);
+                            }}
+                            title="Theme Selection"
+                            style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "6px",
+                            }}
+                        >
+                            {theme === "dark" && <Moon size={14} />}
+                            {theme === "black" && <Moon size={14} />}
+                            {theme === "light" && <Sun size={14} />}
+                            {theme === "legacy" && <Monitor size={14} />}
+                            <svg width="10" height="10" viewBox="0 0 10 10" style={{ transform: themeOpen ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.2s ease", opacity: 0.6 }}>
+                                <path d="M1 3 L5 7 L9 3" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+                            </svg>
+                        </button>
+                    </div>
                     <div style={{ width: 1, height: 20, background: "var(--border-subtle)", flexShrink: 0 }} />
                     <div style={{ position: "relative", flexShrink: 0 }} ref={timeRef}>
                       <button
@@ -213,11 +287,11 @@ export function Header() {
             </div>
         </header>
         {timeOpen && (
-          <div className="time-dropdown" style={{ top: timePos.top, right: timePos.right - 2 }}>
+          <div className="dropdown-menu" style={{ top: timePos.top, right: timePos.right - 2 }}>
             {TIME_WINDOWS.map((tw) => (
               <div
                 key={tw}
-                className={`time-option ${tw === timeWindow ? "active" : ""}`}
+                className={`dropdown-option ${tw === timeWindow ? "active" : ""}`}
                 onClick={() => {
                   setTimeWindow(tw);
                   const range = useStore.getState().timeRange;
@@ -230,6 +304,27 @@ export function Header() {
               </div>
             ))}
           </div>
+        )}
+        {themeOpen && (
+            <div className="dropdown-menu" style={{ top: themePos.top, right: themePos.right - 2 }}>
+                {THEMES.map((th) => {
+                    const Icon = th.icon;
+                    return (
+                        <div
+                            key={th.id}
+                            className={`dropdown-option ${th.id === theme ? "active" : ""}`}
+                            style={{ display: "flex", alignItems: "center", gap: "8px", justifyContent: "flex-start" }}
+                            onClick={() => {
+                                setTheme(th.id);
+                                setThemeOpen(false);
+                            }}
+                        >
+                            <Icon size={14} />
+                            {th.label}
+                        </div>
+                    );
+                })}
+            </div>
         )}
         {showApiKeys && (
                         <div

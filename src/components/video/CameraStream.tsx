@@ -5,6 +5,7 @@ import { Play, Square, Loader2, AlertCircle, ExternalLink, Maximize2 } from "luc
 import { useStore } from "@/core/state/store";
 import { HlsPlayer } from "./HlsPlayer";
 import { isHlsUrl, isKnownVideoPlatform, getYouTubeEmbedUrl, getStreamErrorMessage, getProxiedStreamUrl } from "./streamUtils";
+import { PannableView } from "@/components/common/PannableView";
 
 interface CameraStreamProps {
     streamUrl: string;
@@ -174,7 +175,9 @@ export const CameraStream: React.FC<CameraStreamProps> = ({
                 </div>
             ) : (
                 <div style={{ position: "relative", width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    {renderStreamContent()}
+                    <PannableView>
+                        {renderStreamContent()}
+                    </PannableView>
 
                     {isLoading && (
                         <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", backgroundColor: "rgba(0,0,0,0.6)", backdropFilter: "blur(4px)", zIndex: 20 }}>

@@ -14,7 +14,7 @@ export function ImageryPicker() {
     const updateMapConfig = useStore((s) => s.updateMapConfig);
 
     return (
-        <div className="imagery-picker glass-panel">
+        <div className="imagery-picker">
             <div className="imagery-picker__section">
                 <div className="imagery-picker__title">View Mode</div>
                 <div className="imagery-picker__modes">

@@ -144,9 +144,15 @@ export function setupInteractionHandlers(
 
     return () => {
         if (hoverTimeout) clearTimeout(hoverTimeout);
-        viewer.camera.moveStart.removeEventListener(onMoveStart);
-        viewer.camera.moveEnd.removeEventListener(onMoveEnd);
-        handler.destroy();
-        canvas.style.cursor = "default";
+        if (viewer && !viewer.isDestroyed()) {
+            viewer.camera.moveStart.removeEventListener(onMoveStart);
+            viewer.camera.moveEnd.removeEventListener(onMoveEnd);
+        }
+        if (handler && !handler.isDestroyed()) {
+            handler.destroy();
+        }
+        if (canvas && canvas.style) {
+            canvas.style.cursor = "default";
+        }
     };
 }
