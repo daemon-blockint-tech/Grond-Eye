@@ -28,9 +28,6 @@
       ],
       "@worldwideview/wwv-plugin-sdk": [
         "./packages/wwv-plugin-sdk/src"
-      ],
-      "@worldwideview/wwv-plugin-nz-traffic-cameras": [
-        "./packages/wwv-plugin-nz-traffic-cameras/src"
       ]
     }
   },
