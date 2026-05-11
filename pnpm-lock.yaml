@@ -262,6 +262,34 @@ importers:
         specifier: ^8.0.8
         version: 8.0.11(@types/node@22.19.19)(esbuild@0.27.4)(jiti@2.7.0)(terser@5.47.1)(tsx@4.21.0)
 
+  local-plugins/wwv-plugin-cyber-attacks:
+    dependencies:
+      '@worldwideview/wwv-plugin-sdk':
+        specifier: workspace:*
+        version: link:../../packages/wwv-plugin-sdk
+      lucide-react:
+        specifier: ^0.364.0
+        version: 0.364.0(react@19.2.6)
+    devDependencies:
+      '@vitejs/plugin-react':
+        specifier: ^6.0.1
+        version: 6.0.1(vite@8.0.11(@types/node@22.19.19)(esbuild@0.27.4)(jiti@2.7.0)(terser@5.47.1)(tsx@4.21.0))
+      vite:
+        specifier: ^8.0.8
+        version: 8.0.11(@types/node@22.19.19)(esbuild@0.27.4)(jiti@2.7.0)(terser@5.47.1)(tsx@4.21.0)
+
+  local-plugins/wwv-plugin-earthquakes:
+    dependencies:
+      '@worldwideview/wwv-lib-incidents':
+        specifier: workspace:*
+        version: link:../../packages/wwv-lib-incidents
+      '@worldwideview/wwv-plugin-sdk':
+        specifier: ^1.4.10
+        version: 1.5.0(react@19.2.6)
+      lucide-react:
+        specifier: ^0.368.0
+        version: 0.368.0(react@19.2.6)
+
   local-plugins/wwv-plugin-fortiguard:
     dependencies:
       '@worldwideview/wwv-plugin-sdk':
@@ -325,6 +353,15 @@ importers:
         specifier: ^1.4.10
         version: 1.5.0(react@19.2.6)
 
+  local-plugins/wwv-plugin-maritime:
+    dependencies:
+      '@worldwideview/wwv-plugin-sdk':
+        specifier: workspace:*
+        version: link:../../packages/wwv-plugin-sdk
+      lucide-react:
+        specifier: '>=0.576.0'
+        version: 0.576.0(react@19.2.6)
+
   local-plugins/wwv-plugin-military-aviation:
     dependencies:
       '@worldwideview/wwv-lib-aviation':
@@ -352,6 +389,15 @@ importers:
       vitest:
         specifier: ^1.0.0
         version: 1.6.1(@types/node@20.19.40)(jsdom@28.1.0)(lightningcss@1.32.0)(terser@5.47.1)
+
+  local-plugins/wwv-plugin-wildfire:
+    dependencies:
+      '@worldwideview/wwv-plugin-sdk':
+        specifier: workspace:*
+        version: link:../../packages/wwv-plugin-sdk
+      lucide-react:
+        specifier: '>=0.576.0'
+        version: 0.576.0(react@19.2.6)
 
   packages/wwv-cli:
     dependencies:
@@ -3391,6 +3437,11 @@ packages:
 
   lucide-react@0.364.0:
     resolution: {integrity: sha512-eHfdbJExWtTaZ0tBMGtI7PA/MbqV5wt+o4/yitDce17tadH/75Gq3Tq8jSteb3LhLr0eay/j5YUuN4yXjnI3aw==}
+    peerDependencies:
+      react: ^16.5.1 || ^17.0.0 || ^18.0.0
+
+  lucide-react@0.368.0:
+    resolution: {integrity: sha512-soryVrCjheZs8rbXKdINw9B8iPi5OajBJZMJ1HORig89ljcOcEokKKAgGbg3QWxSXel7JwHOfDFUdDHAKyUAMw==}
     peerDependencies:
       react: ^16.5.1 || ^17.0.0 || ^18.0.0
 
@@ -7592,6 +7643,10 @@ snapshots:
   lru.min@1.1.4: {}
 
   lucide-react@0.364.0(react@19.2.6):
+    dependencies:
+      react: 19.2.6
+
+  lucide-react@0.368.0(react@19.2.6):
     dependencies:
       react: 19.2.6
 
