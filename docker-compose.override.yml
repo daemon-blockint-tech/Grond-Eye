@@ -7,10 +7,6 @@ services:
     profiles:
       - "${WWV_SKIP_LOCAL_DB:-}"
 
-  wwv-data-engine:
-    build: ../wwv-data-engine
-    pull_policy: build
-
 networks:
   coolify:
     external: true
