@@ -46,6 +46,8 @@
     "node_modules",
     "scripts",
     "local-scripts",
+    "local-seeders",
+    "local-plugins",
     "packages/*/backend",
     "worldmonitor",
     ".worktrees"

@@ -36,7 +36,7 @@ import { useViewerInitialization } from "./hooks/useViewerInitialization";
 import { usePersistentDataSync } from "./hooks/usePersistentDataSync";
 
 if (typeof window !== "undefined") {
-    buildModuleUrl.setBaseUrl('/cesium/');
+    (window as any).CESIUM_BASE_URL = '/cesium/';
     if (process.env.NEXT_PUBLIC_CESIUM_ION_TOKEN) {
         Ion.defaultAccessToken = process.env.NEXT_PUBLIC_CESIUM_ION_TOKEN;
     }
