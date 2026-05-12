@@ -30,59 +30,8 @@ Our primary design, feature-set, and operational layout goal is to mimic the str
 
 ## 3. Directory Structure
 
-```
-worldwideview/
-├── src/
-│   ├── app/               # Next.js App Router (pages, API routes, layouts)
-│   │   ├── api/           # Server-side API routes (auth, aviation, camera, etc.)
-│   │   ├── login/         # Login page
-│   │   ├── setup/         # First-time setup page
-│   │   └── globals.css    # Root stylesheet
-│   ├── components/
-│   │   ├── common/        # Shared UI: BootOverlay, FloatingWindow, PluginIcon
-│   │   ├── layout/        # AppShell, Header, SearchBar, DataBusSubscriber
-│   │   ├── panels/        # LayerPanel, EntityInfoCard, FilterPanel, GraphicsSettings
-│   │   ├── timeline/      # Timeline component
-│   │   ├── marketplace/   # Plugin install/unverified dialogs
-│   │   ├── ui/            # Tooltip, ReloadToast
-│   │   └── video/         # Floating video manager
-│   ├── core/
-│   │   ├── data/          # DataBus, PollingManager, CacheLayer, SmartFetcher
-│   │   ├── filters/       # filterEngine (applies plugin filters to entities)
-│   │   ├── globe/         # GlobeView, EntityRenderer, AnimationLoop, StackManager,
-│   │   │   │                CameraController, InteractionHandler, SelectionHandler,
-│   │   │   │                ModelManager, ImageryProviderFactory
-│   │   │   └── hooks/     # useCameraActions, useEntityRendering, useModelRendering, etc.
-│   │   ├── hooks/         # useBootSequence, useIsMobile, useMarketplaceSync
-│   │   ├── plugins/       # PluginManager, PluginRegistry, PluginManifest,
-│   │   │   │                loadPluginFromManifest, validateManifest, InstalledPluginsLoader
-│   │   │   └── loaders/   # DeclarativePlugin, StaticDataPlugin, mapJsonToEntities
-│   │   └── state/         # Zustand store + slices (config, data, globe, layers, timeline, ui, etc.)
-│   ├── lib/               # auth, db, rateLimit, analytics, AIS stream, marketplace APIs
-│   ├── plugins/           # GeoJSON plugin registrations
-│   ├── styles/            # HUD animations CSS
-│   ├── types/             # GeoJSON types, Umami types
-│   └── generated/         # Prisma generated client (gitignored)
-├── local-plugins/         # Local sandbox for developing plugins (gitignored)
-├── packages/              # pnpm monorepo workspace packages
-│   ├── wwv-plugin-sdk/    # Plugin SDK: type definitions, manifest schema
-│   ├── wwv-plugin-aviation/
-│   ├── wwv-plugin-maritime/
-│   ├── wwv-plugin-wildfire/
-│   ├── wwv-plugin-borders/
-│   ├── wwv-plugin-camera/
-│   ├── wwv-plugin-military-aviation/
-│   ├── wwv-plugin-satellite/
-│   ├── wwv-plugin-iranwarlive/   # Standalone plugin with custom endpoints
-│   └── wwv-plugin-{airports,embassies,lighthouses,nuclear,seaports,spaceports,volcanoes}/
-├── prisma/                # schema.prisma, migrations/
-├── public/                # Static assets, Cesium workers, plugin GeoJSON data
-├── scripts/               # Build scripts (copy-cesium, scaffold-osm-plugin, setup)
-├── data/                  # PostgreSQL data volume (gitignored)
-├── Dockerfile             # Multi-stage production build
-├── docker-compose.yml     # Main app + data engine runner + local seeders
-└── .agents/               # Agent documentation, rules, skills, workflows
-```
+> [!NOTE]
+> See `.agents/rules/directory-structure.md` for the full project directory map and related repositories.
 
 ---
 
@@ -217,94 +166,24 @@ Built-in plugins are instantiated in `AppShell.tsx` and registered via `PluginRe
 ### 5.8 Workspace Hygiene
 Whenever agents generate temporary debugging scripts, test REST endpoints via `.mjs`, or dump traces/JSON outputs, they **MUST** save these exclusively inside `/local-scripts/`. The root directory is strictly for production configuration files.
 
----
-
-## 6. Environment Variables
-
-| Variable | Required | Description |
-|---|---|---|
-| `DATABASE_URL` | Yes | PostgreSQL connection string |
-| `AUTH_SECRET` | Yes | JWT signing secret (generate with `openssl rand -hex 32`) |
-| `NEXT_PUBLIC_CESIUM_ION_TOKEN` | No | Cesium Ion access token |
-| `NEXT_PUBLIC_BING_MAPS_KEY` | No | Bing Maps imagery |
-| `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` | No | Google 3D Tiles |
-| `NEXT_PUBLIC_WWV_EDITION` | No | `local` / `cloud` / `demo` (default: `local`) |
-| `NEXT_PUBLIC_WWV_PLUGIN_DATA_ENGINE_URL` | No | Override engine WebSocket URL (default: cloud) |
-| `OPENSKY_CREDENTIALS` | No | Comma-separated `id:secret` pairs for credential rotation |
-| `WWV_BRIDGE_TOKEN` | No | Shared secret for marketplace → WWV install bridge |
-| `WWV_DEMO_ADMIN_SECRET` | No | Demo edition admin password |
-| `IRANWARLIVE_BACKEND_URL` | No | Override for IranWarLive custom backend URL |
-
-Secrets go in `.env.local` (gitignored). Non-secrets go in `.env` (committed).
+### 5.9 Rule Adherence & Proactive Updates
+> [!CAUTION]
+> **Agents will trust the `.agents/rules/` files unconditionally.** 
+> Whenever you execute a major architectural shift or make a change that invalidates an existing rule, you **MUST** immediately update the corresponding rule file(s) and/or `AGENTS.md` to reflect the new reality. Do not leave rules untouched after a change; operating on outdated information will cause future agents to break the codebase.
 
 ---
 
-## 7. Development Commands
+## 6. Environment & Configuration
 
-```bash
-pnpm install          # Install all workspace dependencies
-pnpm run setup        # Generate .env.local with AUTH_SECRET (first-time setup)
-pnpm dev              # Next.js frontend only (auto-runs prisma db push + copy-cesium)
-pnpm dev:all          # Frontend + wwv-data-engine (via Docker Compose) concurrently
-pnpm dev:backends     # Starts the local data engine + Redis via Docker Compose
-pnpm build            # Production build
-pnpm test             # Run all Vitest tests (scoped to src/lib, src/core, src/plugins)
-pnpm db:reset         # Reset and re-migrate the frontend database (destructive)
-pnpm start:backends   # Legacy command for standalone Fastify backends
-pnpm clean:backends   # Wipe all plugin database records
-pnpm run scaffold-osm-plugin <name>  # Generate a new plugin from scaffold
-pnpm dev:plugins      # File watcher for local-plugins/ directory (runs automatically in dev)
-node packages/wwv-cli/dist/index.js create <name> --local # Scaffold a new local plugin
-node packages/wwv-cli/dist/index.js link <name>           # Promote a local plugin to packages/
-```
-
-Frontend runs at `http://localhost:3000`.
+> [!NOTE]
+> See `.agents/rules/environment-config.md` for required environment variables and secrets.
 
 ---
 
-## 8. Deployment
+## 7. Development, Deployment & Testing
 
-- **Docker**: Multi-stage Dockerfile using the Extractor Pattern (`deps` → `builder` → `runner`). The `node_modules` folders must be explicitly untracked in from `git` across the workspace to prevent corrupted BuildKit contextual cache overlaps during the `COPY . .` stage.
-- **Standalone output**: `next.config.ts` uses `output: "standalone"`.
-- **Cesium assets**: Copied to `public/cesium/` via `scripts/copy-cesium.mjs` at build time, excluded from output tracing.
-- **Prisma Configuration**: `prisma.config.ts` must export a native javascript object instead of dynamically importing CLI wrapper binaries (`prisma/config` or `dotenv`). The standalone Next.js tracer strips CLI devDependencies during the build, which will cause fatal runtime container crashes if imported.
-- **Data Engine**: The single runner container defined in `docker-compose.yml`, proxied via `next.config.ts` rewrites.
-- **Coolify**: Deployed via Dockerfile builder natively mapping environment variables continuously into the container shell.
-- **Docker volumes**: Ensure PostgreSQL data and Redis volumes are mounted for persistence.
-
----
-
-## 9. Testing Strategy
-
-- **Framework**: Vitest with jsdom environment
-- **Coverage**: `src/lib/**`, `src/core/**`, `src/plugins/**`
-- **Run**: `pnpm test` (or `vitest run`)
-- **Key test files**: `rateLimit.test.ts`, `edition.test.ts`, `demoAdmin.test.ts`, `DeclarativePlugin.test.ts`, `cors.test.ts`, `repository.test.ts`, `marketplaceToken.test.ts`
-
----
-
-## 10. Security Headers
-
-Configured in `next.config.ts` `headers()`:
-- **CSP**: Restrictive with exceptions for CesiumJS (`unsafe-eval`, `unsafe-inline`), camera streams (`http: https:`), and analytics
-- **X-Frame-Options**: DENY
-- **X-Content-Type-Options**: nosniff
-- **Referrer-Policy**: strict-origin-when-cross-origin
-- **Permissions-Policy**: camera/microphone disabled, geolocation self-only
-
----
-
-## 11. Related Repositories
-
-| Repo | Purpose |
-|---|---|
-| `worldwideview` | Main application (this repo) |
-| `wwv-data-engine` | Generic data engine runner (PUBLIC, runs via Docker) |
-| `wwv-seeders-community` | Open-source community seeders (PUBLIC) |
-| `wwv-seeders-private` | Proprietary seeder scripts (PRIVATE, downloaded in prod) |
-| `worldwideview-marketplace` | Plugin marketplace web app |
-| `worldwideview-plugins` | Published npm plugin packages (frontend source) |
-| `worldwideview-web` | Marketing / landing page |
+> [!NOTE]
+> See `.agents/rules/deployment-and-testing.md` for development commands, Docker architecture, Vitest strategy, and CSP security headers.
 
 ---
 
@@ -314,14 +193,24 @@ Read the relevant rule file when working in that domain:
 
 | Rule | When to use | Path |
 |---|---|---|
+| `platform-architecture` | High-level platform goals, product vision, business model, and Edition System | `.agents/rules/platform-architecture.md` |
+| `application-architecture` | Next.js frontend, Zustand state management, and CesiumJS integration | `.agents/rules/application-architecture.md` |
+| `plugin-architecture` | Creating/modifying plugins, lifecycle, capability declarations, and seeders | `.agents/rules/plugin-architecture.md` |
+| `marketplace-architecture` | Dynamic plugin installation, DB sync, and CDN loading | `.agents/rules/marketplace-architecture.md` |
+| `cloud-auth-architecture` | Cloud edition, PostgreSQL RLS, multi-tenancy, and licensing | `.agents/rules/cloud-auth-architecture.md` |
+| `server-management` | Server development and debugging using SSH and Coolify MCP | `.agents/rules/server-management.md` |
+| `stakeholders-and-human-centered-design` | Human-centered design principles and stakeholder map | `.agents/rules/stakeholders-and-human-centered-design.md` |
+| `directory-structure` | Project structure and related repositories | `.agents/rules/directory-structure.md` |
+| `deployment-and-testing` | Docker build patterns, testing strategies, security headers | `.agents/rules/deployment-and-testing.md` |
+| `environment-config` | Secrets and environment variables | `.agents/rules/environment-config.md` |
 | `monorepo-workflow` | pnpm commands, adding packages, workspace config | `.agents/rules/monorepo-workflow.md` |
-| `plugin-architecture` | Creating/modifying plugins, lifecycle, registration | `.agents/rules/plugin-architecture.md` |
 | `data-engine-architecture` | Data Engine backend seeder loading, pnpm workspace dependencies | `.agents/rules/data-engine-architecture.md` |
 | `cesium-rendering` | Globe rendering, entity types, primitives, LOD, culling | `.agents/rules/cesium-rendering.md` |
 | `state-management` | Zustand slices, store access, plugin settings | `.agents/rules/state-management.md` |
 | `database-migrations` | Prisma schema changes, migrations, PostgreSQL | `.agents/rules/database-migrations.md` |
 | `continuous-improvement` | When to create/update rules, skills, or workflows | `.agents/rules/continuous-improvement.md` |
 | `context-and-memory` | How to orient and maintain project context between sessions | `.agents/rules/context-and-memory.md` |
+| `troubleshooting-and-debugging` | Resolving plugin latency, namespace collisions, or deployment issues | `.agents/rules/troubleshooting-and-debugging.md` |
 
 ---
 
