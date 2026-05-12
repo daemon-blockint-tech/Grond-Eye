@@ -108,7 +108,7 @@ export const createCommand = new Command('create')
     "build": "tsc"
   },
   "dependencies": {
-    "@worldwideview/wwv-plugin-sdk": "workspace:*"
+    "@worldwideview/wwv-plugin-sdk": "latest"
   },
   "worldwideview": {
     "pluginId": "${pluginId}",
