@@ -191,6 +191,12 @@ Plugins declare auth type in the manifest:
 
 **Recommended for scale:** `token-exchange` — your server is never in the hot path for data requests.
 
+### Shared Auth Contracts & Security Branding
+
+When implementing the `token-exchange` flow or communicating across domains, all plugins and endpoints MUST use the strictly defined shared auth contracts from `@worldwideview/wwv-plugin-sdk/src/auth-contracts.ts` (e.g., `TokenExchangeRequest`, `WebSocketAuthMessage`).
+
+**Sensitive Credentials**: All long-lived secrets (like API keys and tokens) MUST use the `SensitiveString` branded type and be instantiated via the `sensitive(str)` factory function. This prevents accidental logging/serialization and creates a single grep target for security audits.
+
 ---
 
 ## Plugin Development Workflows

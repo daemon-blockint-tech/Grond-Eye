@@ -299,3 +299,6 @@ export type DataBusEvents = {
 };
 
 export * from "./viteGlobals";
+
+// ─── Auth Contracts ──────────────────────────────────────────
+export * from "./auth-contracts";

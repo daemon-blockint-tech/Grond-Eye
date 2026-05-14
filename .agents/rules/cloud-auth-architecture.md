@@ -36,6 +36,15 @@ Application code is **identical** across editions — always calls `auth()`, `si
 
 ---
 
+## Decentralized Plugin Authentication (Token Exchange)
+
+For cross-domain plugin communication (Local App connecting to Marketplace or Data Engines), WWV uses an **Asymmetric JWT Token Exchange (PKCE)** model.
+- **PKCE Flow**: The Local App uses standard OAuth 2.0 PKCE to exchange a `code` for a long-lived API key from the Marketplace.
+- **Token Exchange**: The Local App exchanges its long-lived API key for a short-lived, audience-bound JWT before connecting to a decentralized Data Engine.
+- **WebSocket First-Message Auth**: Data Engines enforce a "First-Message Auth" pattern over WebSockets. The client MUST immediately send a `{ type: "auth", v: 1, token: "..." }` message upon opening the connection to prevent SSRF vulnerabilities and credential leakage.
+
+---
+
 ## Registration & Auto-Provisioning
 
 Registration: `app.worldwideview.dev/register`
