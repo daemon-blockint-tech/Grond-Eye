@@ -36,6 +36,23 @@
   flex-shrink: 0;
   font-size: 16px;
   color: var(--text-secondary);
+  overflow: hidden;
+}
+
+.layer-item__icon .plugin-icon__img {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+  display: block;
+}
+
+.layer-item__icon .plugin-icon__text {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  line-height: 1;
 }
 
 .layer-item__info {

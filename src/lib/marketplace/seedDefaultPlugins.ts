@@ -5,8 +5,9 @@ import { DEFAULT_PLUGIN_IDS } from "./defaultPlugins";
 import { upsertPlugin } from "./repository";
 import { getVerifiedPluginIds } from "./registryClient";
 
-const MARKETPLACE_URL = process.env.NEXT_PUBLIC_MARKETPLACE_URL
-    || "https://marketplace.worldwideview.dev";
+const MARKETPLACE_URL = process.env.NEXT_PUBLIC_GROND_MARKETPLACE_URL
+    || process.env.NEXT_PUBLIC_WWV_MARKETPLACE_URL
+    || "https://marketplace.grond.dev";
 
 /**
  * Seed default marketplace plugins on a fresh install.
@@ -26,7 +27,7 @@ export async function seedDefaultPlugins(): Promise<void> {
         if (isDemo) return;
 
         // Opt-out for power users deploying fresh instances
-        if (process.env.WWV_SKIP_DEFAULT_PLUGINS === "true") {
+        if (process.env.GROND_SKIP_DEFAULT_PLUGINS === "true" || process.env.WWV_SKIP_DEFAULT_PLUGINS === "true") {
             await markSeeded();
             return;
         }

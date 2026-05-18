@@ -196,7 +196,7 @@ function manageDedicatedHub(stack: EntityStack, billboards: BillboardCollection)
             // It causes severe lag/performance drops with thousands of dynamic entities.
             disableDepthTestDistance: stack.hubItem.options.disableDepthTestDistance ?? Number.POSITIVE_INFINITY,
             // Tag with same ID as top entity! So clicking it triggers interaction/selection.
-            id: { _wwvEntity: stack.hubItem.entity }
+            id: { _grondEntity: stack.hubItem.entity }
         });
         hubBillboards.set(stack.id, bb);
     } else {

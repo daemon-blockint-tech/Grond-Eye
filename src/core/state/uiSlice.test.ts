@@ -67,7 +67,7 @@ describe('uiSlice', () => {
         store.getState().toggleTheme();
         expect(store.getState().theme).toBe('light');
         expect(document.documentElement.getAttribute('data-theme')).toBe('light');
-        expect(localStorage.setItem).toHaveBeenCalledWith('wwv-theme', 'light');
+        expect(localStorage.setItem).toHaveBeenCalledWith('grond-theme', 'light');
 
         store.getState().toggleTheme();
         expect(store.getState().theme).toBe('legacy');

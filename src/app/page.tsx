@@ -1,11 +1,5 @@
-import { AppShell } from "@/components/layout/AppShell";
-import { DemoAdStrip } from "@/components/ads/DemoAdStrip";
+import { redirect } from "next/navigation";
 
 export default function Home() {
-  return (
-    <div className="page-root">
-      <AppShell />
-      <DemoAdStrip />
-    </div>
-  );
+    redirect("/ops");
 }

@@ -10,8 +10,28 @@
 import { useState, useEffect, useRef } from "react";
 import { Search, MapPin } from "lucide-react";
 import { useIsMobile } from "@/core/hooks/useIsMobile";
-import { useSearch } from "./useSearch";
+import { useSearch, type SearchEmptyReason } from "./useSearch";
+import { searchCoordinates } from "./searchCoordinates";
 import type { SearchResult, SearchSection } from "./useSearch";
+
+/**
+ * User-facing empty-state copy for map search.
+ * @param reason - Why the dropdown has no results.
+ */
+function getSearchEmptyMessage(reason: SearchEmptyReason): string {
+    switch (reason) {
+        case "places_unconfigured":
+            return "Place search is not configured. Add a Google Maps API key in Settings, or enter coordinates (e.g. 37.83, -122.42).";
+        case "places_error":
+            return "Place search failed. Try coordinates (e.g. 37.83, -122.42) or try again shortly.";
+        case "try_coordinates":
+            return "Enter a full coordinate pair, e.g. 37.83, -122.42. For place names, try English (e.g. Alcatraz Island).";
+        case "no_results":
+            return "No matches. Try coordinates (e.g. 37.83, -122.42) or another spelling.";
+        default:
+            return "No results found.";
+    }
+}
 
 /**
  * @function HighlightMatch
@@ -45,7 +65,7 @@ export function SearchBar() {
     const {
         query, setQuery, isOpen, setIsOpen,
         sections, selectedIndex, setSelectedIndex,
-        flatResults, handleSelect
+        flatResults, handleSelect, emptyReason
     } = useSearch();
 
     const containerRef = useRef<HTMLDivElement>(null);
@@ -81,7 +101,14 @@ export function SearchBar() {
             setSelectedIndex((prev) => (prev - 1 + flatResults.length) % flatResults.length);
         } else if (e.key === "Enter") {
             e.preventDefault();
-            handleSelect(flatResults[selectedIndex]);
+            if (flatResults.length > 0) {
+                handleSelect(flatResults[selectedIndex]);
+            } else {
+                const coordSection = searchCoordinates(query);
+                if (coordSection?.results[0]) {
+                    handleSelect(coordSection.results[0]);
+                }
+            }
         } else if (e.key === "Escape") {
             setIsOpen(false);
         }
@@ -115,7 +142,7 @@ export function SearchBar() {
                     }}
             onFocus={() => setIsOpen(true)}
             onKeyDown={handleKeyDown}
-            placeholder="Search places, addresses, flights..."
+            placeholder="Search places or coordinates (e.g. 37.83, -122.42)"
             style={{
                         background: "transparent",
                         border: "none",
@@ -226,7 +253,7 @@ export function SearchBar() {
                     fontSize: "0.85rem"
                 }}
         >
-          No results found.
+          {getSearchEmptyMessage(emptyReason)}
         </div>
             )}
       </div>

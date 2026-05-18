@@ -1,0 +1,68 @@
+/* Admin dashboard shell */
+
+.admin-layout {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  background: var(--bg-base);
+  color: var(--text-primary);
+}
+
+.admin-sidebar {
+  border-right: 1px solid var(--border-subtle);
+  padding: var(--space-lg) var(--space-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.admin-sidebar__brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.admin-sidebar__logo {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-sm);
+  background: var(--accent-cyan, #22d3ee);
+  color: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+}
+
+.admin-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.admin-nav__link {
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: 13px;
+}
+
+.admin-nav__link:hover,
+.admin-nav__link--active {
+  background: var(--bg-layer-2);
+  color: var(--text-primary);
+}
+
+.admin-main {
+  padding: var(--space-xl);
+  overflow: auto;
+}
+
+.admin-page-title {
+  margin: 0 0 var(--space-lg);
+  font-size: 22px;
+  font-weight: 600;
+}

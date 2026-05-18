@@ -8,7 +8,7 @@ export interface SearchResult {
     score: number;
     lat: number;
     lon: number;
-    type: "country" | "entity" | "place";
+    type: "country" | "entity" | "place" | "coordinate";
     pluginId?: string;
     entity?: GeoEntity;
     placeCategory?: PlaceCategory;

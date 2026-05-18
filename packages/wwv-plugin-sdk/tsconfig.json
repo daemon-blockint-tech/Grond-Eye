@@ -1,16 +1,8 @@
 {
+  "extends": "../grond-plugin-sdk/tsconfig.json",
   "compilerOptions": {
-    "target": "ES2017",
-    "lib": ["dom", "dom.iterable", "esnext"],
-    "module": "esnext",
-    "moduleResolution": "bundler",
-    "jsx": "react-jsx",
-    "strict": true,
-    "noEmit": true,
-    "skipLibCheck": true,
-    "esModuleInterop": true,
-    "isolatedModules": true,
-    "resolveJsonModule": true
+    "rootDir": "../grond-plugin-sdk/src",
+    "baseUrl": "../grond-plugin-sdk"
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx"]
+  "include": ["../grond-plugin-sdk/src/**/*.ts", "../grond-plugin-sdk/src/**/*.tsx"]
 }

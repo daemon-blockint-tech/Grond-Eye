@@ -64,7 +64,30 @@ function isFeature(obj: Record<string, unknown>): boolean {
 }
 
 function isFeatureCollection(obj: Record<string, unknown>): boolean {
-  return obj.type === "FeatureCollection" && Array.isArray(obj.features);
+  const type = typeof obj.type === "string" ? obj.type.toLowerCase() : "";
+  return type === "featurecollection" && Array.isArray(obj.features);
+}
+
+function isFeatureRecord(obj: unknown): obj is Record<string, unknown> {
+  return isRecord(obj) && obj.type === "Feature" && isRecord(obj.geometry);
+}
+
+/**
+ * Wraps an array of GeoJSON Features (common export mistake) into a FeatureCollection.
+ */
+function featureArrayToCollection(parsed: unknown[]): GeoJsonFeatureCollection | null {
+  if (parsed.length === 0) return null;
+  if (!parsed.every(isFeatureRecord)) return null;
+  return {
+    type: "FeatureCollection",
+    features: parsed as unknown as GeoJsonFeature[],
+  };
+}
+
+/** Strips UTF-8 BOM and leading whitespace before JSON.parse. */
+function parseJsonInput(input: string): unknown {
+  const trimmed = input.trim().replace(/^\uFEFF/, "");
+  return JSON.parse(trimmed);
 }
 
 export interface NormalizeResult {
@@ -89,14 +112,17 @@ export function normalizeToGeoJson(
   let parsed: unknown = input;
   if (typeof input === "string") {
     try {
-      parsed = JSON.parse(input.trim());
+      parsed = parseJsonInput(input);
     } catch {
       throw new Error("Input is not valid JSON.");
     }
   }
 
-  // Plain object array → delegate to converter adapter
   if (Array.isArray(parsed)) {
+    const fromFeatures = featureArrayToCollection(parsed);
+    if (fromFeatures) {
+      return buildResult(fromFeatures);
+    }
     const converted = convertToGeoJson(
       parsed as Record<string, unknown>[],
       convertOptions,

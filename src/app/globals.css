@@ -76,6 +76,13 @@ html, body {
   position: absolute;
   inset: 0;
   z-index: 0;
+  pointer-events: auto;
+}
+
+.app-shell__globe .cesium-viewer,
+.app-shell__globe .cesium-widget {
+  pointer-events: auto;
+  touch-action: none;
 }
 
 /* ─── Header ──────────────────────────────────────────────── */

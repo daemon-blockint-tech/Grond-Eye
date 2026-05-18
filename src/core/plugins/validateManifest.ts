@@ -21,11 +21,11 @@ const VALID_TRUSTS = ["built-in", "verified", "unverified"] as const;
 
 /**
  * Validates a plugin manifest for structural integrity and security compliance.
- * This is the primary security gate for the WorldWideView plugin ecosystem.
+ * This is the primary security gate for the Grond plugin ecosystem.
  * It ensures that all required fields are present and, crucially, enforces
  * an 'Entry URL Allowlist' to prevent Remote Code Execution (RCE) from
  * untrusted domains. All external bundles must originate from approved
- * CDNs or official WorldWideView infrastructure.
+ * CDNs or official Grond infrastructure.
  *
  * @param manifest - The manifest object to validate (potentially partial during parsing).
  * @returns A ValidationResult indicating success or a list of identified security/structural risks.
@@ -61,11 +61,11 @@ export function validateManifest(
         const entry = manifest.entry.trim();
         const isRelative = entry.startsWith("/") || entry.startsWith("./");
         const isLocal = entry.startsWith("http://localhost") || entry.startsWith("http://127.0.0.1");
-        const isWWV = entry.includes(".worldwideview.dev");
+        const isGrond = entry.includes(".grond.dev") || entry.includes(".worldwideview.dev");
         const isCDN = entry.startsWith("https://cdn.jsdelivr.net") || entry.startsWith("https://unpkg.com");
 
-        if (!isRelative && !isLocal && !isWWV && !isCDN) {
-            errors.push("entry URL must be a relative path, CDN, localhost, or worldwideview.dev domain");
+        if (!isRelative && !isLocal && !isGrond && !isCDN) {
+            errors.push("entry URL must be a relative path, CDN, localhost, or grond.dev domain");
         }
     }
 

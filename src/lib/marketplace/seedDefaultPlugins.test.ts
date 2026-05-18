@@ -55,8 +55,8 @@ function fakeManifest(id: string) {
         name: id,
         version: "1.0.0",
         format: "bundle",
-        entry: `https://unpkg.com/wwv-plugin-${id}@1.0.0/dist/frontend.mjs`,
-        npmPackage: `wwv-plugin-${id}`,
+        entry: `https://unpkg.com/grond-plugin-${id}@1.0.0/dist/frontend.mjs`,
+        npmPackage: `grond-plugin-${id}`,
         rendering: { type: "point", color: "#ff0000", size: 6 },
     };
 }
@@ -69,6 +69,7 @@ describe("seedDefaultPlugins", () => {
     beforeEach(() => {
         vi.clearAllMocks();
         mockIsDemo = false;
+        delete process.env.GROND_SKIP_DEFAULT_PLUGINS;
         delete process.env.WWV_SKIP_DEFAULT_PLUGINS;
 
         // Defaults: not seeded, no existing plugins, manifests valid
@@ -143,8 +144,8 @@ describe("seedDefaultPlugins", () => {
         expect(mockCreate).toHaveBeenCalled();
     });
 
-    it("skips when WWV_SKIP_DEFAULT_PLUGINS=true", async () => {
-        process.env.WWV_SKIP_DEFAULT_PLUGINS = "true";
+    it("skips when GROND_SKIP_DEFAULT_PLUGINS=true", async () => {
+        process.env.GROND_SKIP_DEFAULT_PLUGINS = "true";
 
         await seedDefaultPlugins();
 

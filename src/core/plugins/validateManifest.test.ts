@@ -38,7 +38,7 @@ entry: "https://hacker.com/malicious.js"
     };
     const result = validateManifest(manifest);
     expect(result.valid).toBe(false);
-    expect(result.errors).toContain("entry URL must be a relative path, CDN, localhost, or worldwideview.dev domain");
+    expect(result.errors).toContain("entry URL must be a relative path, CDN, localhost, or grond.dev domain");
   });
 
   it("should require extends for extensions", () => {

@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { trackEvent } from "@/lib/analytics";
 import { isDemo, DEMO_ADMIN_ROLE } from "@/core/edition";
+import { readJsonResponse } from "@/lib/http/readJsonResponse";
 
 import Image from "next/image";
 import { useIsMobile } from "@/core/hooks/useIsMobile";
@@ -77,7 +78,10 @@ export function Header() {
     useEffect(() => {
         if (!isDemo) return;
         fetch("/api/auth/session")
-            .then((r) => r.json())
+            .then(async (r) => {
+                if (!r.ok) return null;
+                return readJsonResponse<{ user?: { role?: string } }>(r);
+            })
             .then((s) => setIsDemoAdmin(s?.user?.role === DEMO_ADMIN_ROLE))
             .catch(() => {});
     }, []);
@@ -104,7 +108,7 @@ export function Header() {
             <header className="header header--mobile glass-panel">
               <div className="header__brand">
                 <a
-                  href="https://worldwideview.dev/"
+                  href="https://grond.dev/"
                   target="_blank"
                   rel="noopener noreferrer"
                   style={{
@@ -112,7 +116,7 @@ export function Header() {
 }}
                 >
                   <Image src="/logo/logo-icon.svg" alt="Logo" width={20} height={20} style={{ objectFit: "contain" }} />
-                  <div className="header__logo header__logo--compact">WWV</div>
+                  <div className="header__logo header__logo--compact">GROND</div>
                 </a>
                 <span className="alpha-badge">ALPHA</span>
                 {isDemoAdmin && <span className="alpha-badge" style={{ background: "var(--accent-orange, #f59e0b)" }}>ADMIN</span>}
@@ -205,10 +209,10 @@ export function Header() {
       <>
         <header className="header glass-panel">
           <div className="header__brand">
-            <a href="https://worldwideview.dev/" target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none", color: "inherit", cursor: "pointer" }}>
+            <a href="https://grond.dev/" target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none", color: "inherit", cursor: "pointer" }}>
               <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                 <Image src="/logo/logo-icon.svg" alt="Logo" width={22} height={22} style={{ objectFit: "contain" }} />
-                <div className="header__logo">WORLD WIDE VIEW</div>
+                <div className="header__logo">GROND</div>
                 <span className="alpha-badge">ALPHA</span>
                 {isDemoAdmin && <span className="alpha-badge" style={{ background: "var(--accent-orange, #f59e0b)" }}>ADMIN</span>}
               </div>

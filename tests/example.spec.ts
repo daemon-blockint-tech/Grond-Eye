@@ -1,10 +1,9 @@
 import { test, expect } from '@playwright/test';
 
 test('has title and boots app completely', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/ops');
 
-  // Expect a title "to contain" a substring.
-  await expect(page).toHaveTitle(/WorldWideView/i);
+  await expect(page).toHaveTitle(/Grond/i);
 
   // Wait for the boot sequence to finish and plugins to load
   await page.waitForSelector('[data-testid="app-ready"]', { state: 'attached', timeout: 30000 });

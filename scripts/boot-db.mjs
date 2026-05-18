@@ -40,10 +40,10 @@ const loadEnv = (file) => {
 
 loadEnv('.env');
 
-const skipLocalDb = process.env.WWV_SKIP_LOCAL_DB === 'true' || process.env.WWV_SKIP_LOCAL_DB === '1';
+const skipLocalDb = process.env.GROND_SKIP_LOCAL_DB === 'true' || process.env.GROND_SKIP_LOCAL_DB === '1' || process.env.WWV_SKIP_LOCAL_DB === 'true' || process.env.WWV_SKIP_LOCAL_DB === '1';
 
 if (skipLocalDb) {
-  console.log('⏭️ Skipping local PostgreSQL startup (WWV_SKIP_LOCAL_DB is set).');
+  console.log('⏭️ Skipping local PostgreSQL startup (GROND_SKIP_LOCAL_DB is set).');
   process.exit(0);
 }
 
@@ -52,13 +52,13 @@ const cwd = process.cwd();
 const folderName = path.basename(cwd);
 let port = 5432; // Default for main repo
 
-if (folderName !== 'worldwideview') {
+if (folderName !== 'grond' && folderName !== 'worldwideview') {
   const hash = crypto.createHash('sha256').update(cwd).digest('hex');
   const portOffset = parseInt(hash.substring(0, 4), 16) % 1000;
   port = 5433 + portOffset;
 }
 
-process.env.WWV_DB_PORT = port.toString();
+process.env.GROND_DB_PORT = port.toString();
 console.log(`🔌 Assigned deterministic database port: ${port}`);
 
 // Robust rewrite of DATABASE_URL in .env
@@ -67,30 +67,46 @@ if (fs.existsSync(envPath)) {
   const envContent = fs.readFileSync(envPath, 'utf8');
   const lines = envContent.split(/\r?\n/);
   
-  const targetUrl = `DATABASE_URL="postgresql://postgres:postgres@127.0.0.1:${port}/worldwideview?schema=public"`;
+  const targetUrl = `DATABASE_URL="postgresql://postgres:postgres@127.0.0.1:${port}/grond?schema=public"`;
+  const targetPortLine = `GROND_DB_PORT=${port}`;
   let foundTargetActive = false;
+  let foundTargetPort = false;
   let linesModified = false;
   
-  const newLines = lines.map(line => {
+  const newLines = lines.flatMap((line) => {
+    if (/^\s*GROND_DB_PORT\s*=/.test(line)) {
+      if (line.trim() === targetPortLine) {
+        foundTargetPort = true;
+        return [line];
+      }
+      linesModified = true;
+      return [`# ${line}`];
+    }
+    // Repair corrupted line where AUTH_SECRET was glued to DATABASE_URL
+    if (/^\s*DATABASE_URL\s*=/.test(line) && line.includes("AUTH_SECRET=")) {
+      const idx = line.indexOf("AUTH_SECRET=");
+      linesModified = true;
+      return [line.slice(0, idx).trimEnd(), line.slice(idx)];
+    }
     // Check if line is an active DATABASE_URL
     if (/^\s*DATABASE_URL\s*=/.test(line)) {
       if (line.trim() === targetUrl) {
         foundTargetActive = true;
-        return line;
-      } else {
-        console.warn(`⚠️  [Telemetry] Commenting out conflicting DATABASE_URL: ${line.trim()}`);
-        linesModified = true;
-        return `# ${line}`;
+        return [line];
       }
+      console.warn(`⚠️  [Telemetry] Commenting out conflicting DATABASE_URL: ${line.trim()}`);
+      linesModified = true;
+      return [`# ${line}`];
     }
-    return line;
+    return [line];
   });
   
-  if (!foundTargetActive) {
-    console.log(`🔌 [Telemetry] Injecting correct local DATABASE_URL for port ${port}.`);
+  if (!foundTargetActive || !foundTargetPort) {
+    console.log(`🔌 [Telemetry] Injecting local DATABASE_URL and GROND_DB_PORT=${port}.`);
     newLines.push(``);
     newLines.push(`# Dynamically injected by boot-db.mjs for worktree`);
-    newLines.push(targetUrl);
+    if (!foundTargetPort) newLines.push(targetPortLine);
+    if (!foundTargetActive) newLines.push(targetUrl);
     linesModified = true;
   }
   
@@ -102,7 +118,8 @@ if (fs.existsSync(envPath)) {
     let attempt = 0;
     while (attempt < maxRetries) {
       try {
-        fs.writeFileSync(envPath, newContent, 'utf8');
+        const payload = newContent.endsWith('\n') ? newContent : `${newContent}\n`;
+        fs.writeFileSync(envPath, payload, 'utf8');
         break; // Success
       } catch (err) {
         attempt++;
@@ -145,5 +162,5 @@ try {
 } catch (error) {
   console.error('❌ Failed to start local database:', error.message);
   console.log('💡 Ensure that docker is running and try again');
-  console.log('💡 You may need to start it manually or set WWV_SKIP_LOCAL_DB=true to use an external database.');
+  console.log('💡 You may need to start it manually or set GROND_SKIP_LOCAL_DB=true to use an external database.');
 }

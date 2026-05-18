@@ -1,7 +1,9 @@
 "use server";
 
 import { hashSync } from "bcryptjs";
+import { AuthError } from "next-auth";
 import { prisma } from "@/lib/db";
+import { signIn } from "@/lib/auth";
 
 interface SetupResult {
     success: boolean;
@@ -33,9 +35,37 @@ export async function createAdminAccount(formData: FormData): Promise<SetupResul
     const hashedPassword = hashSync(password, 12);
     await prisma.user.create({
         data: {
- name, email, hashedPassword, role: "admin"
-},
+            name,
+            email,
+            hashedPassword,
+            role: "admin",
+        },
     });
+
+    return { success: true };
+}
+
+/**
+ * Creates the first admin, then signs in so /ops is reachable immediately.
+ */
+export async function setupAction(formData: FormData): Promise<SetupResult> {
+    const result = await createAdminAccount(formData);
+    if (!result.success) return result;
+
+    const email = formData.get("email") as string;
+    const password = formData.get("password") as string;
+
+    try {
+        await signIn("credentials", { email, password, redirect: false });
+    } catch (error) {
+        if (error instanceof AuthError) {
+            return {
+                success: false,
+                error: "Account created but sign-in failed. Try logging in manually.",
+            };
+        }
+        throw error;
+    }
 
     return { success: true };
 }

@@ -19,7 +19,7 @@ async function tryMirror(urlStr: string, query: string, timeoutMs: number) {
             headers: {
                 "Content-Type": "application/x-www-form-urlencoded",
                 "Content-Length": Buffer.byteLength(bodyStr),
-                "User-Agent": "WorldWideView/1.11"
+                "User-Agent": "Grond/1.11"
             },
             timeout: timeoutMs,
         }, (res) => {

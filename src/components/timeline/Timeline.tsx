@@ -11,6 +11,7 @@
 import React, { useState, useEffect } from "react";
 import { useStore } from "@/core/state/store";
 import { isHistoryEnabled as default_isHistoryEnabled, isDemo, DEMO_ADMIN_ROLE } from "@/core/edition";
+import { readJsonResponse } from "@/lib/http/readJsonResponse";
 
 /**
  * @component Timeline
@@ -38,7 +39,10 @@ export function Timeline() {
         setMounted(true);
         if (!isDemo) return;
         fetch("/api/auth/session")
-            .then((r) => r.json())
+            .then(async (r) => {
+                if (!r.ok) return null;
+                return readJsonResponse<{ user?: { role?: string } }>(r);
+            })
             .then((s) => setIsDemoAdmin(s?.user?.role === DEMO_ADMIN_ROLE))
             .catch(() => {});
     }, []);
@@ -82,7 +86,7 @@ export function Timeline() {
                     History unavailable on demo —
                     {" "}
                     <a
-                      href="https://worldwideview.dev"
+                      href="https://grond.dev"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="timeline__history-unavailable-link"

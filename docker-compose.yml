@@ -1,29 +1,28 @@
 services:
-  wwv:
+  grond:
     build:
       context: .
       args:
-        - NEXT_PUBLIC_WWV_EDITION=${NEXT_PUBLIC_WWV_EDITION:-local}
-        - NEXT_PUBLIC_WWV_PLUGIN_DATA_ENGINE_URL=${NEXT_PUBLIC_WWV_PLUGIN_DATA_ENGINE_URL:-}
+        - NEXT_PUBLIC_GROND_EDITION=${NEXT_PUBLIC_GROND_EDITION:-local}
+        - NEXT_PUBLIC_GROND_PLUGIN_DATA_ENGINE_URL=${NEXT_PUBLIC_GROND_PLUGIN_DATA_ENGINE_URL:-}
         - NEXT_PUBLIC_SUPABASE_URL=${NEXT_PUBLIC_SUPABASE_URL:-}
         - NEXT_PUBLIC_SUPABASE_ANON_KEY=${NEXT_PUBLIC_SUPABASE_ANON_KEY:-}
         - NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=${NEXT_PUBLIC_GOOGLE_MAPS_API_KEY:-}
-        - NEXT_PUBLIC_BING_MAPS_KEY=${NEXT_PUBLIC_BING_MAPS_KEY:-}
         - NEXT_PUBLIC_CESIUM_ION_TOKEN=${NEXT_PUBLIC_CESIUM_ION_TOKEN:-}
         - NEXT_PUBLIC_ADSENSE_CLIENT_ID=${NEXT_PUBLIC_ADSENSE_CLIENT_ID:-}
     ports:
       - "3000:3000"
     volumes:
-      - wwv-data:/app/data
+      - grond-data:/app/data
       - ./public/plugins-local:/app/public/plugins-local:ro
     env_file:
       - path: .env
         required: false
     environment:
       - "AUTH_SECRET=${AUTH_SECRET:-default_secret_for_local_dev}"
-      - "WWV_DEMO_ADMIN_SECRET=${WWV_DEMO_ADMIN_SECRET:-}"
-      - "WWV_BRIDGE_TOKEN=${WWV_BRIDGE_TOKEN:-}"
-      - "DATABASE_URL=postgresql://postgres:postgres@db:5432/worldwideview?schema=public"
+      - "GROND_DEMO_ADMIN_SECRET=${GROND_DEMO_ADMIN_SECRET:-}"
+      - "GROND_BRIDGE_TOKEN=${GROND_BRIDGE_TOKEN:-}"
+      - "DATABASE_URL=postgresql://postgres:postgres@db:5432/grond?schema=public"
     depends_on:
       db:
         condition: service_healthy
@@ -41,20 +40,20 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: worldwideview
+      POSTGRES_DB: grond
     ports:
-      - "${WWV_DB_PORT:-5432}:5432"
+      - "${GROND_DB_PORT:-5432}:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d worldwideview"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d grond"]
       interval: 5s
       timeout: 5s
       retries: 5
       start_period: 60s
 
-  wwv-data-engine:
-    image: ghcr.io/silvertakana/wwv-data-engine:latest
+  grond-data-engine:
+    image: ghcr.io/silvertakana/grond-data-engine:latest
     command: >
       sh -c "
       echo 'Syncing workspace dependencies...' &&
@@ -65,17 +64,17 @@ services:
       - "5000:5000"
     environment:
       - PORT=5000
-      - REDIS_URL=redis://wwv-redis:6379
+      - REDIS_URL=redis://grond-redis:6379
       - SEEDERS_DIR=/app/seeders
       - DB_PATH=/app/data/engine.db
     depends_on:
-      wwv-redis:
+      grond-redis:
         condition: service_healthy
     restart: unless-stopped
     profiles:
       - engine
 
-  wwv-redis:
+  grond-redis:
     image: redis:7-alpine
     healthcheck:
       test: ['CMD', 'redis-cli', 'ping']
@@ -90,5 +89,5 @@ networks:
     external: true
 
 volumes:
-  wwv-data:
+  grond-data:
   postgres-data:

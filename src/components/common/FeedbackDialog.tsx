@@ -33,7 +33,7 @@ export function FeedbackDialog() {
     const [attachLogs, setAttachLogs] = useState(true);
     const [email, setEmail] = useState(() => {
         if (typeof window !== "undefined") {
-            return localStorage.getItem("wwv_feedback_email") || "";
+            return localStorage.getItem("grond_feedback_email") || localStorage.getItem("wwv_feedback_email") || "";
         }
         return "";
     });
@@ -47,7 +47,7 @@ export function FeedbackDialog() {
     const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const newEmail = e.target.value;
         setEmail(newEmail);
-        localStorage.setItem("wwv_feedback_email", newEmail);
+        localStorage.setItem("grond_feedback_email", newEmail);
     };
 
     const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -297,7 +297,7 @@ export function FeedbackDialog() {
                   onChange={(e) => setAttachLogs(e.target.checked)}
                   className={styles.checkboxInput}
                 />
-                <span className={styles.checkboxLabel}>Attach WorldWideView diagnostic logs and information</span>
+                <span className={styles.checkboxLabel}>Attach Grond diagnostic logs and information</span>
               </label>
             </div>
 

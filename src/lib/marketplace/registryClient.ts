@@ -1,10 +1,10 @@
 import { createPublicKey, verify } from "crypto";
 
-/** Ed25519 public key for verifying the WWV plugin registry. */
+/** Ed25519 public key for verifying the Grond plugin registry. */
 const REGISTRY_PUBLIC_KEY = "MCowBQYDK2VwAyEAkYDmLpCrHu1fnsu8CCdICOHg3IUGuDDkA4fpUeJANJk=";
 
 /** Default marketplace registry URL (configurable via env). */
-const REGISTRY_URL = process.env.WWV_REGISTRY_URL ?? "https://marketplace.worldwideview.dev/api/registry";
+const REGISTRY_URL = process.env.GROND_REGISTRY_URL ?? process.env.WWV_REGISTRY_URL ?? "https://marketplace.grond.dev/api/registry";
 
 interface RegistryPayload {
   plugins: string[];

@@ -161,6 +161,10 @@ User-configurable values live in the `settings` table (not `.env`). They can be 
 
 ---
 
+## Ops scenario simulation
+
+Rehearsal scenarios run server-side (`src/lib/scenarios/`) and emit through the `sim-scenarios` plugin via `ScenarioSync` polling. Entities carry `properties.simulated: true`; `opsSimOnly` filters map and Assets. Gated by edition or `SCENARIOS_ENABLED`. See `docs/architecture/decisions/adr-0003-scenario-simulation-platform.md`.
+
 ## Design Principles
 
 - **Single Responsibility:** Plugins only handle data mapping — they don't know about UI or cache.

@@ -12,8 +12,8 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "WorldWideView | Geospatial Intelligence",
-  description: "Next-generation, open-source geospatial intelligence platform.",
+  title: "Grond | Geospatial Operations",
+  description: "Grond — real-time geospatial intelligence and common operating picture.",
 };
 
 export default function RootLayout({
@@ -22,12 +22,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning data-theme="black">
       <head>
         {process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID && (
           <meta name="google-adsense-account" content={process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID} />
         )}
-        {process.env.NEXT_PUBLIC_WWV_EDITION === "demo" && process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID && (
+        {(process.env.NEXT_PUBLIC_GROND_EDITION === "demo") && process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID && (
           <Script
             id="adsbygoogle"
             async
@@ -38,25 +38,15 @@ export default function RootLayout({
         )}
         {/* Load CesiumJS base styles (optional, but helps with UI widgets if used later) */}
         <link rel="stylesheet" href="/cesium/Widgets/widgets.css" />
-        <script
-          id="theme-hydration"
-          suppressHydrationWarning
-          dangerouslySetInnerHTML={{
-            __html: `
-              try {
-                var theme = localStorage.getItem('wwv-theme') || 'black';
-                document.documentElement.setAttribute('data-theme', theme);
-              } catch (e) {}
-            `,
-          }}
-        />
+        {/* Blocking theme before paint — plain script in head (not next/script in body) */}
+        <script src="/theme-init.js" />
       </head>
       <body suppressHydrationWarning>
         {children}
         {process.env.VERCEL && <Analytics />}
-        {process.env.NEXT_PUBLIC_WWV_ANALYTICS === "true" && (
+        {(process.env.NEXT_PUBLIC_GROND_ANALYTICS === "true") && (
           <Script
-            src="https://analytics.worldwideview.dev/script.js"
+            src="https://analytics.grond.dev/script.js"
             data-website-id="2c8f6c09-2651-4a2a-af99-b8cee1612b9a"
             strategy="afterInteractive"
           />

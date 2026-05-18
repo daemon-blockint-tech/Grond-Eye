@@ -17,9 +17,45 @@ model User {
   createdAt      DateTime          @default(now())
   favorites      Favorite[]
   memberships    WorkspaceMember[]
+  opsTasks       OpsTask[]
+  opsAlerts      OpsAlert[]
 
   @@unique([tenantId, email])
   @@map("users")
+}
+
+model OpsTask {
+  id              String   @id @default(uuid())
+  userId          String
+  title           String
+  status          String   @default("active")
+  entityPluginId  String?
+  entityId        String?
+  lat             Float?
+  lon             Float?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, status])
+  @@map("ops_tasks")
+}
+
+model OpsAlert {
+  id              String    @id @default(uuid())
+  userId          String
+  severity        String    @default("info")
+  title           String
+  body            String?
+  source          String?
+  entityPluginId  String?
+  entityId        String?
+  dismissedAt     DateTime?
+  createdAt       DateTime  @default(now())
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, dismissedAt])
+  @@map("ops_alerts")
 }
 
 model Favorite {

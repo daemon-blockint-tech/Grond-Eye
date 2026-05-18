@@ -1,0 +1,21 @@
+{
+  "name": "@grond/lib-incidents",
+  "version": "1.0.3",
+  "description": "Shared abstract base classes for Grond incident plugins (earthquakes, wildfires, conflicts)",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "files": [
+    "src"
+  ],
+  "keywords": [
+    "grond",
+    "incident",
+    "disaster",
+    "base-plugin"
+  ],
+  "author": "Grond",
+  "license": "ISC",
+  "peerDependencies": {
+    "@grond/plugin-sdk": "workspace:*"
+  }
+}

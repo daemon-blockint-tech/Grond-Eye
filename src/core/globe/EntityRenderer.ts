@@ -92,7 +92,7 @@ export function getCollections(viewer: CesiumViewer): Partial<PrimitiveCollectio
 /** Creates a label primitive for an item (lazy evaluation). */
 export function createLabel(item: AnimatableItem, labels: LabelCollection): void {
     if (!item.options.labelText || item.labelPrimitive) return;
-    const clickId = { _wwvEntity: item.entity };
+    const clickId = { _grondEntity: item.entity };
     item.labelPrimitive = labels.add({
         position: item.posRef,
         text: item.options.labelText,
@@ -150,7 +150,7 @@ currentIds: Set<string>
         (effectiveOptions as any)._isAutoSVG = true;
     }
 
-    const clickId = { _wwvEntity: entity };
+    const clickId = { _grondEntity: entity };
     let item = existingMap.get(entity.id);
 
     if (item && item.options.type !== effectiveOptions.type) {

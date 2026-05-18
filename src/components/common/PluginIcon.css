@@ -1,0 +1,9 @@
+.plugin-icon__img {
+  object-fit: contain;
+  display: block;
+  flex-shrink: 0;
+}
+
+.plugin-icon__text {
+  line-height: 1;
+}

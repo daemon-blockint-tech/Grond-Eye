@@ -1,0 +1,45 @@
+.auth-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+}
+
+.auth-backdrop__liquid {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    cursor: default;
+}
+
+.auth-backdrop__liquid.liquid-ascii-container {
+    pointer-events: none;
+    cursor: default;
+}
+
+.auth-backdrop__scanlines {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.04;
+    background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(255, 255, 255, 0.35) 2px,
+        rgba(255, 255, 255, 0.35) 3px
+    );
+}
+
+.auth-backdrop__vignette {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(ellipse at center, transparent 30%, rgba(0, 0, 0, 0.6) 100%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .auth-backdrop__liquid {
+        opacity: 0.25;
+    }
+}

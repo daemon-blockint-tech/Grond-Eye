@@ -1,0 +1,49 @@
+.ops-account-menu {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.ops-account-menu__trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 8px;
+}
+
+.ops-account-menu__panel {
+  min-width: 200px;
+  text-align: left;
+}
+
+.ops-account-menu__identity {
+  padding: 8px 12px 10px;
+  border-bottom: 1px solid var(--border-subtle);
+  margin-bottom: 4px;
+}
+
+.ops-account-menu__email {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-primary);
+  word-break: break-all;
+}
+
+.ops-account-menu__item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  text-align: left;
+  text-decoration: none;
+}
+
+.ops-account-menu__signout {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+}
+
+.ops-account-menu__signout button {
+  width: 100%;
+}

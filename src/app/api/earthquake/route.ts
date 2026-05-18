@@ -20,7 +20,7 @@ export async function GET() {
         const response = await fetch(FEED_URL, {
             headers: {
                 Accept: "application/geo+json, application/json",
-                "User-Agent": "WorldWideView/1.0",
+                "User-Agent": "Grond/1.0",
             },
             next: { revalidate },
         });

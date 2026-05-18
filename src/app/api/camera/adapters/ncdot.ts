@@ -41,7 +41,7 @@ interface DetailRecord {
 async function fetchDetail(id: number): Promise<DetailRecord | null> {
     try {
         const res = await fetch(DETAIL_URL(id), {
-            headers: { "User-Agent": "WorldWideView/1.0" },
+            headers: { "User-Agent": "Grond/1.0" },
         });
         if (!res.ok) return null;
         if (res.status === 204) return null; // camera deleted/unavailable
@@ -107,7 +107,7 @@ export const ncdotAdapter: CameraAdapter = {
     region: "United States — North Carolina",
     fetch: async () => {
         const bulkRes = await fetch(BULK_URL, {
-            headers: { "User-Agent": "WorldWideView/1.0" },
+            headers: { "User-Agent": "Grond/1.0" },
         });
         if (!bulkRes.ok) throw new Error(`NCDOT bulk ${bulkRes.status}`);
         const bulk = (await bulkRes.json()) as BulkRecord[];

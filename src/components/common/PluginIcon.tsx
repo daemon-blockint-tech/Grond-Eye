@@ -1,15 +1,23 @@
 /**
  * @file PluginIcon.tsx
  * @description Central icon resolver for plugins. Supports Lucide string names,
- * emoji fallbacks, and custom React component icons.
+ * image URLs (data:, http(s):, /path), emoji fallbacks, and custom React components.
  */
 
 "use client";
 
 import type { ComponentType } from "react";
 import { icons, type LucideIcon } from "lucide-react";
+import "./PluginIcon.css";
 
 const FallbackIcon = icons.Package;
+
+/**
+ * True when the icon string is a URL suitable for an img src (not a Lucide name or emoji).
+ */
+function isImageIconUrl(icon: string): boolean {
+    return /^(data:image\/|https?:\/\/|\/)/i.test(icon);
+}
 
 /**
  * Props for the PluginIcon component.
@@ -38,8 +46,20 @@ export function PluginIcon({ icon, size = 18, color }: PluginIconProps) {
     if (typeof icon === "string") {
         const Resolved = icons[icon as keyof typeof icons] as LucideIcon | undefined;
         if (Resolved) return <Resolved size={size} color={color} />;
-        // Treat as emoji or text fallback
-        return <span>{icon}</span>;
+        if (isImageIconUrl(icon)) {
+            return (
+              <img
+                src={icon}
+                alt=""
+                width={size}
+                height={size}
+                className="plugin-icon__img"
+                decoding="async"
+              />
+            );
+        }
+        // Treat as emoji or short text fallback
+        return <span className="plugin-icon__text">{icon}</span>;
     }
 
     const IconComponent = icon;

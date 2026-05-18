@@ -8,6 +8,7 @@ import {
 } from "@/core/edition";
 import { authConfig } from "@/lib/auth.config";
 import { SupabaseAdapter } from "@auth/supabase-adapter";
+import { resolveSupabaseConfig } from "@/lib/supabase-config";
 
 // Extract local credentials logic to a helper
 const localCredentialsProvider = Credentials({
@@ -57,10 +58,16 @@ export const {
 } = NextAuth({
     ...authConfig,
     session: { strategy: "jwt" },
-    adapter: isCloud ? SupabaseAdapter({
-        url: process.env.NEXT_PUBLIC_SUPABASE_URL || "http://dummy.supabase.co",
-        secret: process.env.SUPABASE_SERVICE_ROLE_KEY || "dummy",
-    }) as any : undefined,
+    adapter: isCloud
+        ? (() => {
+            const supabase = resolveSupabaseConfig();
+            if (!supabase?.url || !supabase.serviceRoleKey) return undefined;
+            return SupabaseAdapter({
+                url: supabase.url,
+                secret: supabase.serviceRoleKey,
+            }) as any;
+        })()
+        : undefined,
     providers: [localCredentialsProvider],
     callbacks: {
         ...authConfig.callbacks,

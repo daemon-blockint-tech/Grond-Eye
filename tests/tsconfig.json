@@ -1,10 +1,10 @@
 {
-  "extends": "../tsconfig.json",
+  "extends": "../tsconfig.base.json",
   "compilerOptions": {
     "moduleResolution": "node",
-    "types": ["@playwright/test"]
+    "types": ["@playwright/test"],
+    "noEmit": true
   },
-  "include": [
-    "**/*.ts"
-  ]
+  "include": ["./**/*.ts"],
+  "exclude": ["../node_modules"]
 }

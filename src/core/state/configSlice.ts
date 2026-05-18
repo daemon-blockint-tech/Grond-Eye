@@ -5,7 +5,32 @@
  */
 
 import type { StateCreator } from "zustand";
+import { migrateImageryLayerId } from "@/core/globe/ImageryProviderFactory";
 import type { AppStore } from "./store";
+
+/**
+ * Reads the persisted basemap id from localStorage and migrates legacy Bing ids.
+ */
+function getPersistedBaseLayerId(): string {
+    if (
+        typeof window === "undefined" ||
+        !window.localStorage ||
+        typeof window.localStorage.getItem !== "function"
+    ) {
+        return "google-3d";
+    }
+
+    const stored = localStorage.getItem("wwv_map_layer");
+    if (!stored) {
+        return "google-3d";
+    }
+
+    const migrated = migrateImageryLayerId(stored);
+    if (migrated !== stored && typeof window.localStorage.setItem === "function") {
+        localStorage.setItem("wwv_map_layer", migrated);
+    }
+    return migrated;
+}
 
 // ─── Data Configuration ──────────────────────────────────────
 /**
@@ -107,7 +132,7 @@ export const createConfigSlice: StateCreator<AppStore, [], [], ConfigSlice> = (s
         maxScreenSpaceError: 32, // Increase from 16 to 32 to significantly reduce 3D tile network requests and costs
         shadowsEnabled: false,
         enableLighting: false,
-        baseLayerId: (typeof window !== "undefined" && window.localStorage && typeof window.localStorage.getItem === "function") ? (localStorage.getItem("wwv_map_layer") || "google-3d") : "google-3d",
+        baseLayerId: getPersistedBaseLayerId(),
         fallbackLayerId: null,
         sceneMode: 3,
         showOsmBuildings: true,

@@ -23,7 +23,11 @@ export function ImportModal({ onClose }: ImportModalProps) {
         error, setError,
         dragging, setDragging,
         fileRef,
-        processInput, handleFile, handleDrop, handleConfirm
+        processInput,
+        handleFile,
+        handleDrop,
+        handleConfirm,
+        loadFromUrl,
     } = useGeoJsonImport(onClose);
 
     return (
@@ -55,14 +59,23 @@ export function ImportModal({ onClose }: ImportModalProps) {
 
           <div className="geojson-modal__body">
             {method === "file" && (
-            <FileDropZone
-              dragging={dragging}
-              fileRef={fileRef}
-              onDrop={handleDrop}
-              onDragOver={() => setDragging(true)}
-              onDragLeave={() => setDragging(false)}
-              onFileSelect={handleFile}
-            />
+            <>
+              <FileDropZone
+                dragging={dragging}
+                fileRef={fileRef}
+                onDrop={handleDrop}
+                onDragOver={() => setDragging(true)}
+                onDragLeave={() => setDragging(false)}
+                onFileSelect={handleFile}
+              />
+              <button
+                type="button"
+                className="geojson-btn geojson-btn--secondary geojson-btn--full"
+                onClick={() => loadFromUrl("/military_bases.geojson")}
+              >
+                Load military bases (public)
+              </button>
+            </>
                     )}
 
             {(method === "paste" || method === "custom") && (

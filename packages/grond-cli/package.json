@@ -1,0 +1,24 @@
+{
+  "name": "@grond/cli",
+  "version": "1.2.1",
+  "type": "module",
+  "description": "Grond CLI",
+  "main": "dist/index.js",
+  "bin": {
+    "grond": "dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "commander": "^12.1.0",
+    "prompts": "^2.4.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/prompts": "^2.4.9",
+    "typescript": "^5.0.0"
+  }
+}

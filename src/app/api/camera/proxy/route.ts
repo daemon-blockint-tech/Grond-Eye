@@ -26,7 +26,7 @@ export async function GET(req: NextRequest) {
     try {
         const response = await safeFetch(targetUrl, {
             headers: {
-                "User-Agent": "WorldWideView/1.0",
+                "User-Agent": "Grond/1.0",
                 Accept: "application/json, text/plain, */*",
             },
             maxSize: 5 * 1024 * 1024, // 5MB

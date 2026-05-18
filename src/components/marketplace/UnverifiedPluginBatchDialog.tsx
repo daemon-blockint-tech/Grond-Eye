@@ -47,7 +47,7 @@ export default function UnverifiedPluginBatchDialog({
             {manifests.length > 1 ? "s" : ""}
             {' '}
             not
-            verified by WorldWideView. Select which to install.
+            verified by Grond. Select which to install.
           </p>
         </div>
 

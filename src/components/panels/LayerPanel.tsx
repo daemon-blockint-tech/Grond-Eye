@@ -33,7 +33,7 @@ import "./LayerPanel.css"
  * Manages tabs for layers, imagery, favorites, geojson imports, and plugins.
  * Handles the recursive search and categorization of active plugins.
  */
-export function LayerPanel() {
+export function LayerPanel({ hidePluginsTab = false, className }: { hidePluginsTab?: boolean; className?: string } = {}) {
     const isMobile = useIsMobile();
     const { width, startResizing } = useResizablePanel(280, 260, 800, 'left');
     const leftSidebarOpen = useStore((s) => s.leftSidebarOpen);
@@ -118,7 +118,7 @@ export function LayerPanel() {
 
     return (
       <aside
-        className={`sidebar sidebar--left glass-panel ${isMobile ? "sidebar--mobile" : ""} ${(isMobile ? openMobilePanel === "left" : leftSidebarOpen) ? "" : "sidebar--closed"}`}
+        className={`sidebar sidebar--left glass-panel ${className ?? ""} ${isMobile ? "sidebar--mobile" : ""} ${(isMobile ? openMobilePanel === "left" : leftSidebarOpen) ? "" : "sidebar--closed"}`}
         style={{ width: isMobile ? undefined : width }}
       >
         {/* Drag Handle */}
@@ -177,6 +177,7 @@ export function LayerPanel() {
           >
             <DownloadCloud size="20" style={{margin: 5,maxHeight: "20%"}} />
           </button>
+          {!hidePluginsTab && (
           <button
             className={`panel-tab ${activeTab === "plugins" ? "panel-tab--active" : ""}`}
             onClick={() => { setActiveTab("plugins"); trackEvent("panel-tab-switch", { tab: "plugins" }); }}
@@ -185,6 +186,7 @@ export function LayerPanel() {
           >
             <Puzzle size="20" style={{margin: 5,maxHeight: "20%"}} />
           </button>
+                )}
         </div>
 
         {activeTab === "layers" && (
@@ -288,7 +290,7 @@ export function LayerPanel() {
           <ImportPanel />
             )}
 
-        {activeTab === "plugins" && (
+        {!hidePluginsTab && activeTab === "plugins" && (
           <PluginsTab />
             )}
 

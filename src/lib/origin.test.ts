@@ -41,7 +41,7 @@ describe("getRequestOrigin", () => {
   });
 
   it("should fall back to env var if headers are missing or invalid", () => {
-    process.env.NEXT_PUBLIC_APP_URL = "https://cloud.wwv.dev";
+    process.env.NEXT_PUBLIC_APP_URL = "https://cloud.grond.dev";
     const headers = new Map([
       ["host", "0.0.0.0:3000"]
     ]);
@@ -51,7 +51,7 @@ describe("getRequestOrigin", () => {
     };
 
     const origin = getRequestOrigin(mockRequest);
-    expect(origin).toBe("https://cloud.wwv.dev");
+    expect(origin).toBe("https://cloud.grond.dev");
   });
 
   it("should replace 0.0.0.0 with localhost as last resort", () => {

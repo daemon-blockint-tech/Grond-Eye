@@ -2,8 +2,10 @@ import { SignJWT, jwtVerify } from "jose";
 import { randomUUID } from "crypto";
 
 const SCOPE = "marketplace";
-const ISSUER = "worldwideview";
-const AUDIENCE = "worldwideview-marketplace";
+import { MARKETPLACE_JWT_AUDIENCE, MARKETPLACE_JWT_ISSUER } from "@/core/grondEnv";
+
+const ISSUER = MARKETPLACE_JWT_ISSUER;
+const AUDIENCE = MARKETPLACE_JWT_AUDIENCE;
 const EXPIRY = "4h";
 
 // Simple in-memory revocation list for JWT tokens (resets on restart)

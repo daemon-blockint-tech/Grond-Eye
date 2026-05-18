@@ -11,6 +11,7 @@ import {
   approveUnverifiedPlugin,
 } from "@/lib/marketplace/trustedPlugins";
 import { isDemo } from "@/core/edition";
+import { readJsonResponse } from "@/lib/http/readJsonResponse";
 
 /**
  * Syncs marketplace-installed plugins on window focus.
@@ -106,7 +107,7 @@ export function useMarketplaceSync(hostReady: boolean) {
     async function syncMarketplacePlugins() {
         try {
             const res = await fetch("/api/marketplace/load");
-            const json = await res.json();
+            const json = await readJsonResponse<{ manifests?: PluginManifest[]; error?: string }>(res);
             console.debug(`[MarketplaceSync] Received marketplace manifest json`);
 
             if (!res.ok) {

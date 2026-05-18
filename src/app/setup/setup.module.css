@@ -12,9 +12,10 @@
     max-width: 420px;
     background: var(--bg-secondary, #13131a);
     border: 1px solid var(--border-primary, rgba(255, 255, 255, 0.08));
-    border-radius: 0px;
+    border-radius: 0;
     padding: 2.5rem 2rem;
     text-align: center;
+    box-sizing: border-box;
 }
 
 .logo {
@@ -29,7 +30,7 @@
      * explicit brand color so the logo is visible before any theme
      * applies.
      */
-    background: rgb(200, 30, 30);
+    background: #22d3ee;
     color: #fff;
     font-weight: 700;
     font-size: 1.25rem;
@@ -78,7 +79,7 @@
 }
 
 .input:focus {
-    border-color: rgb(200, 30, 30);
+    border-color: #22d3ee;
 }
 
 .error {
@@ -90,7 +91,7 @@
 .button {
     margin-top: 0.75rem;
     padding: 0.7rem;
-    background: rgb(200, 30, 30);
+    background: #22d3ee;
     color: #fff;
     border: none;
     border-radius: 0px;

@@ -7,6 +7,7 @@
 import type { StateCreator } from "zustand";
 import type { GeoEntity } from "@/core/plugins/PluginTypes";
 import type { AppStore } from "./store";
+import { readStoredTheme, writeStoredTheme } from "./themeStorage";
 
 // ─── UI Slice ────────────────────────────────────────────────
 /**
@@ -119,7 +120,7 @@ export interface UISlice {
 }
 
 export const createUISlice: StateCreator<AppStore, [], [], UISlice> = (set) => ({
-    theme: typeof window !== "undefined" ? (localStorage.getItem("wwv-theme") as any) || "black" : "black",
+    theme: typeof window !== "undefined" ? readStoredTheme() : "black",
     leftSidebarOpen: true,
     rightSidebarOpen: false,
     configPanelOpen: true,
@@ -144,13 +145,13 @@ export const createUISlice: StateCreator<AppStore, [], [], UISlice> = (set) => (
             legacy: "dark"
         }[state.theme] as "dark" | "light" | "legacy" | "black";
 
-        try { localStorage.setItem("wwv-theme", nextTheme); } catch { /* ignored */ }
-        document.documentElement.setAttribute('data-theme', nextTheme);
+        writeStoredTheme(nextTheme);
+        document.documentElement.setAttribute("data-theme", nextTheme);
         return { theme: nextTheme };
     }),
     setTheme: (theme) => set(() => {
-        try { localStorage.setItem("wwv-theme", theme); } catch { /* ignored */ }
-        document.documentElement.setAttribute('data-theme', theme);
+        writeStoredTheme(theme);
+        document.documentElement.setAttribute("data-theme", theme);
         return { theme };
     }),
     toggleLeftSidebar: () => set((state) => ({ leftSidebarOpen: !state.leftSidebarOpen })),

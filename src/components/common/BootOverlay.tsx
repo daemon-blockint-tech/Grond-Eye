@@ -35,7 +35,7 @@ export function BootOverlay({ visible }: BootOverlayProps) {
         </div>
 
         {/* Brand + status */}
-        <div className="boot-overlay__title">WorldWideView</div>
+        <div className="boot-overlay__title">Grond</div>
         <div className="boot-overlay__status">Initializing Systems...</div>
       </div>
     );

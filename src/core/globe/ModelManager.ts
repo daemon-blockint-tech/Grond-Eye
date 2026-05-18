@@ -53,7 +53,7 @@ export async function createModelPrimitive(
             color: options.color ? Color.fromCssColorString(options.color) : undefined,
             silhouetteColor: Color.CYAN,
             silhouetteSize: 0,
-            id: { _wwvEntity: entity },
+            id: { _grondEntity: entity },
         });
 
         if (scene.isDestroyed()) return;

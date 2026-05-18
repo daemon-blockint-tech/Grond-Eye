@@ -18,18 +18,19 @@ const OUTPUT_DIR = path.join(ROOT, "public", "plugins-local");
 
 // External globals — must match extract-plugins.mjs pattern
 const EXTERNAL_GLOBALS = {
-    "react": "globalThis.__WWV_HOST__.React",
-    "react-dom": "globalThis.__WWV_HOST__.ReactDOM",
-    "react/jsx-runtime": "globalThis.__WWV_HOST__.jsxRuntime",
-    "@worldwideview/wwv-plugin-sdk": "globalThis.__WWV_HOST__.WWVPluginSDK",
-    "cesium": "globalThis.__WWV_HOST__.Cesium",
-    "resium": "globalThis.__WWV_HOST__.Resium",
+    "react": "globalThis.__GROND_HOST__.React",
+    "react-dom": "globalThis.__GROND_HOST__.ReactDOM",
+    "react/jsx-runtime": "globalThis.__GROND_HOST__.jsxRuntime",
+    "@grond/plugin-sdk": "globalThis.__GROND_HOST__.GrondPluginSDK",
+    "@worldwideview/wwv-plugin-sdk": "globalThis.__GROND_HOST__.GrondPluginSDK",
+    "cesium": "globalThis.__GROND_HOST__.Cesium",
+    "resium": "globalThis.__GROND_HOST__.Resium",
 };
 
 /**
  * @function discoverLocalPlugins
  * @description Finds all directories in `local-plugins/` that contain a valid 
- * `package.json` with a `worldwideview` manifest block.
+ * `package.json` with a `grond` manifest block.
  * @returns {Array<{dir: string, manifest: any, pluginDir: string}>}
  */
 export function discoverLocalPlugins() {
@@ -41,12 +42,12 @@ export function discoverLocalPlugins() {
             const pkgPath = path.join(LOCAL_PLUGINS_DIR, dir, "package.json");
             if (!fs.existsSync(pkgPath)) return false;
             const pkg = JSON.parse(fs.readFileSync(pkgPath, "utf-8"));
-            return !!pkg.worldwideview;
+            return !!(pkg.grond || pkg.worldwideview);
         })
         .map(dir => {
             const pkgPath = path.join(LOCAL_PLUGINS_DIR, dir, "package.json");
             const pkg = JSON.parse(fs.readFileSync(pkgPath, "utf-8"));
-            const manifest = pkg.worldwideview;
+            const manifest = pkg.grond || pkg.worldwideview;
             manifest.version = pkg.version;
             manifest.name = pkg.name;
             manifest.description = pkg.description;
@@ -115,7 +116,7 @@ export async function buildPlugin({ dir, manifest, pluginDir }) {
 }
 
 export function syncToPublic({ dir, manifest, pluginDir }) {
-    const publicName = manifest.id || dir.replace("wwv-plugin-", "");
+    const publicName = manifest.id || dir.replace("grond-plugin-", "").replace("wwv-plugin-", "");
     const targetDir = path.join(OUTPUT_DIR, publicName);
     const distFile = path.join(pluginDir, "dist", "frontend.mjs");
     const distMap = path.join(pluginDir, "dist", "frontend.mjs.map");
@@ -182,7 +183,7 @@ export async function syncAll() {
         if (ok) syncToPublic(plugin);
     }
 
-    const activeIds = plugins.map(p => p.manifest.id || p.dir.replace("wwv-plugin-", ""));
+    const activeIds = plugins.map(p => p.manifest.id || p.dir.replace("grond-plugin-", "").replace("wwv-plugin-", ""));
     cleanStale(activeIds);
 }
 

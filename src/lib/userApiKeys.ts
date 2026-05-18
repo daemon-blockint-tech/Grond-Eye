@@ -8,6 +8,7 @@ export interface ApiKeyEntry {
     service: string;
     label: string;
     localStorageKey: string;
+    legacyLocalStorageKey?: string;
     headerName: string;
     placeholder: string;
 }
@@ -17,25 +18,29 @@ export const API_KEY_REGISTRY: ApiKeyEntry[] = [
     {
         service: "google_maps",
         label: "Google Maps API Key",
-        localStorageKey: "wwv_key_google_maps",
+        localStorageKey: "grond_key_google_maps",
+        legacyLocalStorageKey: "wwv_key_google_maps",
         headerName: "X-User-Google-Key",
         placeholder: "AIza...",
     },
     {
         service: "nasa_firms",
         label: "NASA FIRMS API Key",
-        localStorageKey: "wwv_key_nasa_firms",
+        localStorageKey: "grond_key_nasa_firms",
+        legacyLocalStorageKey: "wwv_key_nasa_firms",
         headerName: "X-User-Firms-Key",
         placeholder: "Enter your FIRMS MAP_KEY",
     },
 ];
 
-/** Read a single key from localStorage. */
+/** Read a single key from localStorage (grond key first, then legacy wwv key). */
 export function getUserApiKey(service: string): string {
     if (typeof window === "undefined") return "";
     const entry = API_KEY_REGISTRY.find((e) => e.service === service);
     if (!entry) return "";
-    return localStorage.getItem(entry.localStorageKey) ?? "";
+    return localStorage.getItem(entry.localStorageKey)
+        ?? (entry.legacyLocalStorageKey ? localStorage.getItem(entry.legacyLocalStorageKey) : null)
+        ?? "";
 }
 
 /** Write a single key to localStorage. */

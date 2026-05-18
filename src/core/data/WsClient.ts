@@ -1,4 +1,4 @@
-import type { WsStreamPayload, GeoEntity } from "@worldwideview/wwv-plugin-sdk";
+import type { WsStreamPayload, GeoEntity } from "@grond/plugin-sdk";
 import { dataBus } from "./DataBus";
 import { pluginManager } from "../plugins/PluginManager";
 import { useStore } from "../state/store";
@@ -168,5 +168,6 @@ class WebSocketClient {
 export const wsClient = new WebSocketClient();
 
 if (typeof window !== "undefined") {
-  (window as any).wwvDebugConnections = () => wsClient.printConnections();
+  (window as any).grondDebugConnections = () => wsClient.printConnections();
+  (window as any).wwvDebugConnections = (window as any).grondDebugConnections;
 }

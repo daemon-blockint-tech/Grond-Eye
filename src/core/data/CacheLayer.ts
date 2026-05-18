@@ -1,4 +1,5 @@
 import type { GeoEntity } from "@/core/plugins/PluginTypes";
+import { CACHE_DB_NAME } from "@/core/grondEnv";
 
 interface CacheEntry {
     entities: GeoEntity[];
@@ -12,13 +13,13 @@ interface CacheEntry {
  */
 class CacheLayer {
     private memoryCache: Map<string, CacheEntry> = new Map();
-    private dbName = "worldwideview-cache";
+    private dbName = CACHE_DB_NAME;
     private storeName = "entities";
     private db: IDBDatabase | null = null;
 
     async init(): Promise<void> {
         if (typeof window === "undefined") return;
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
             const request = indexedDB.open(this.dbName, 1);
             request.onupgradeneeded = () => {
                 const db = request.result;

@@ -142,7 +142,7 @@ export function useModelRendering(
                     color: item.options.color ? Color.fromCssColorString(item.options.color) : undefined,
                     silhouetteColor: Color.CYAN,
                     silhouetteSize: 0,
-                    id: { _wwvEntity: item.entity },
+                    id: { _grondEntity: item.entity },
                 }).then((model) => {
                     loading.delete(id);
                     if (!viewer || viewer.isDestroyed()) return;

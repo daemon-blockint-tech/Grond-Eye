@@ -6,6 +6,7 @@ import type {
 } from "@/core/plugins/PluginTypes";
 import type { PluginManifest } from "@/core/plugins/PluginManifest";
 import { loadPluginFromManifest } from "@/core/plugins/loadPluginFromManifest";
+import { getPluginDataEngineUrl, getPublicEdition } from "@/core/grondEnv";
 import { dataBus } from "@/core/data/DataBus";
 import { pollingManager } from "@/core/data/PollingManager";
 import { cacheLayer } from "@/core/data/CacheLayer";
@@ -74,7 +75,7 @@ class PluginManager {
 
     /**
      * Registers a new plugin and establishes its execution environment.
-     * This method is responsible for injecting `NEXT_PUBLIC_WWV_PLUGIN_*` environment
+     * This method is responsible for injecting `NEXT_PUBLIC_GROND_PLUGIN_*` environment
      * variables, resolving the correct Data Engine URLs, and setting up the
      * pub/sub routing for the plugin's data updates and error telemetry.
      *
@@ -90,7 +91,9 @@ class PluginManager {
         const envVars: Record<string, string> = {};
         if (typeof process !== "undefined" && process.env) {
             for (const [key, value] of Object.entries(process.env)) {
-                if (key.startsWith("NEXT_PUBLIC_WWV_PLUGIN_")) {
+                if (key.startsWith("NEXT_PUBLIC_GROND_PLUGIN_")) {
+                    envVars[key.replace("NEXT_PUBLIC_GROND_PLUGIN_", "")] = value || "";
+                } else if (key.startsWith("NEXT_PUBLIC_WWV_PLUGIN_")) {
                     envVars[key.replace("NEXT_PUBLIC_WWV_PLUGIN_", "")] = value || "";
                 }
             }
@@ -98,13 +101,13 @@ class PluginManager {
 
         // Next.js inlines `process.env.NEXT_PUBLIC_*` only at known static
         // reference sites. The iteration above can come back empty in the
-        // browser bundle even when NEXT_PUBLIC_WWV_PLUGIN_* is set at build,
+        // browser bundle even when NEXT_PUBLIC_GROND_PLUGIN_* is set at build,
         // because `Object.entries(process.env)` is not a static reference and
         // the bundler doesn't expose every NEXT_PUBLIC_ key on the runtime
         // object. Add explicit static references so the values reach plugin
         // contexts. Add new known keys here as they're introduced.
         // Format the raw engine URL to ensure it uses http/https for initial fetch calls
-        const rawEngineUrl = process.env.NEXT_PUBLIC_WWV_PLUGIN_DATA_ENGINE_URL;
+        const rawEngineUrl = getPluginDataEngineUrl();
         const httpEngineUrl = rawEngineUrl 
             ? rawEngineUrl.replace(/\/stream$/, "").replace(/^ws:\/\//, "http://").replace(/^wss:\/\//, "https://") 
             : undefined;
@@ -116,7 +119,7 @@ class PluginManager {
             if (v && !envVars[k]) envVars[k] = v;
         }
 
-        const edition = (process.env.NEXT_PUBLIC_WWV_EDITION || "local") as "local" | "cloud" | "demo";
+        const edition = (getPublicEdition() || "local") as "local" | "cloud" | "demo";
 
         if (Object.keys(envVars).length > 0) {
             console.debug(`[PluginManager] Injected ${Object.keys(envVars).length} custom env vars into "${plugin.id}"`);

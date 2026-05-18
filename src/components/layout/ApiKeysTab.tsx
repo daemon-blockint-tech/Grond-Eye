@@ -279,7 +279,7 @@ export function ApiKeysTab() {
                             autoComplete="new-password"
                             data-form-type="other"
                             data-lpignore="true"
-                            name={`wwv-apikey-${entry.service}`}
+                            name={`grond-apikey-${entry.service}`}
                           />
                           <StatusIcon status={st} />
                           <button

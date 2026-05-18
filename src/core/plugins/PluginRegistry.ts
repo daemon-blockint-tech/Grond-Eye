@@ -1,7 +1,7 @@
 import type { WorldPlugin } from "@/core/plugins/PluginTypes";
 
 /**
- * PluginRegistry is the central coordinator for all active data sources in WorldWideView.
+ * PluginRegistry is the central coordinator for all active data sources in Grond.
  * It provides a standardized API for registration, discovery, and lifecycle management,
  * ensuring that the application remains modular and that plugins can be hot-swapped
  * or dynamically loaded from the marketplace without affecting core engine logic.

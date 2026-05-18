@@ -1,6 +1,6 @@
 /**
  * @file store.ts
- * @description The central state management hub for WorldWideView.
+ * @description The central state management hub for Grond.
  * Combines multiple Zustand slices into a single unified store for the entire application.
  */
 
@@ -13,6 +13,11 @@ import { createFilterSlice, type FilterSlice } from "./filterSlice";
 import { createDataSlice, type DataSlice } from "./dataSlice";
 import { createConfigSlice, type ConfigSlice } from "./configSlice";
 import { createFavoritesSlice, type FavoritesSlice } from "./favoritesSlice";
+import { createOpsNavSlice, type OpsNavSlice } from "./slices/opsNav";
+import { createOpsTasksSlice, type OpsTasksSlice } from "./slices/opsTasks";
+import { createOpsAlertsSlice, type OpsAlertsSlice } from "./slices/opsAlerts";
+import { createOpsSimSlice, type OpsSimSlice } from "./slices/opsSim";
+import { createOpsAuthorizationSlice, type OpsAuthorizationSlice } from "./slices/opsAuthorization";
 
 /**
  * Re-exporting slice types for easier access from components and utilities.
@@ -28,13 +33,15 @@ export type AppStore = GlobeSlice &
     FilterSlice &
     DataSlice &
     ConfigSlice &
-    FavoritesSlice;
+    FavoritesSlice &
+    OpsNavSlice &
+    OpsTasksSlice &
+    OpsAlertsSlice &
+    OpsSimSlice &
+    OpsAuthorizationSlice;
 
 /**
  * The primary hook for accessing and modifying the application state.
- *
- * This combined store provides access to all nine state slices:
- * globe, layers, timeline, ui, filter, data, config, and favorites.
  */
 export const useStore = create<AppStore>((...args) => ({
     ...createGlobeSlice(...args),
@@ -45,4 +52,9 @@ export const useStore = create<AppStore>((...args) => ({
     ...createDataSlice(...args),
     ...createConfigSlice(...args),
     ...createFavoritesSlice(...args),
+    ...createOpsNavSlice(...args),
+    ...createOpsTasksSlice(...args),
+    ...createOpsAlertsSlice(...args),
+    ...createOpsSimSlice(...args),
+    ...createOpsAuthorizationSlice(...args),
 }));

@@ -37,6 +37,12 @@
   --discord-border: rgba(88, 101, 242, 0.5);
   --discord-border-hover: rgba(88, 101, 242, 0.8);
   --discord-glow: rgba(88, 101, 242, 0.3);
+
+  /* Ops shell (Lattice-style C2) */
+  --ops-rail-width: 32px;
+  --ops-panel-width: 320px;
+  --ops-header-height: 48px;
+  --ops-footer-height: 40px;
 }
 
 [data-theme='black'] {

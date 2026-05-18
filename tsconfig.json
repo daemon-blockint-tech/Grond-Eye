@@ -26,8 +26,17 @@
       "@/*": [
         "./src/*"
       ],
+      "@grond/plugin-sdk": [
+        "./packages/grond-plugin-sdk/src"
+      ],
+      "@grond/plugin-sdk/vite": [
+        "./packages/grond-plugin-sdk/src/vite.ts"
+      ],
       "@worldwideview/wwv-plugin-sdk": [
-        "./packages/wwv-plugin-sdk/src"
+        "./packages/grond-plugin-sdk/src"
+      ],
+      "@worldwideview/wwv-plugin-sdk/vite": [
+        "./packages/grond-plugin-sdk/src/vite.ts"
       ],
       "@local/*": [
         "./local-plugins/*/src"

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import * as client from "openid-client";
 import { encryptCredential } from "@/lib/auth/encryption";
 import { prisma as db } from "@/lib/db";
+import { getMarketplaceUrl } from "@/core/grondEnv";
 
 export async function GET(req: NextRequest) {
     const isHttps = req.nextUrl.protocol === "https:";
@@ -19,7 +20,7 @@ export async function GET(req: NextRequest) {
         return NextResponse.json({ error: "Missing code_verifier" }, { status: 400 });
     }
 
-    const marketplaceUrl = process.env.NEXT_PUBLIC_WWV_MARKETPLACE_URL || "https://app.worldwideview.dev";
+    const marketplaceUrl = getMarketplaceUrl() || "https://app.worldwideview.dev";
     const issuer = new URL(marketplaceUrl);
     const server = {
         issuer: issuer.toString(),

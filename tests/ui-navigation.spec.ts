@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 test.describe('UI Navigation and Panels', () => {
   test.beforeEach(async ({ page }) => {
     // Navigate to root and wait for app to be completely booted
-    await page.goto('/');
+    await page.goto('/ops');
     await page.waitForSelector('[data-testid="app-ready"]', { state: 'attached', timeout: 45000 });
     
     // Dismiss unverified plugin dialog if it appears

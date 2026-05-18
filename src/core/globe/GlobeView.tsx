@@ -11,6 +11,7 @@ import { useStore } from "@/core/state/store";
 import { pluginManager } from "@/core/plugins/PluginManager";
 import type { GeoEntity, CesiumEntityOptions } from "@/core/plugins/PluginTypes";
 import { applyFilters } from "@/core/filters/filterEngine";
+import { isSimulatedEntity } from "@/lib/scenarios/entities";
 import { dataBus } from "@/core/data/DataBus";
 import { PluginErrorBoundary } from "@/components/common/PluginErrorBoundary";
 import { subscribeToCameraPresets } from "./CameraController";
@@ -74,6 +75,7 @@ maxScreenSpaceError,
 enableLighting,
     }), [showFps, resolutionScale, antiAliasing, maxScreenSpaceError, shadowsEnabled, enableLighting]);
     const filters = useStore((s) => s.filters);
+    const opsSimOnly = useStore((s) => s.opsSimOnly);
     const pluginSettings = useStore((s) => s.dataConfig.pluginSettings);
     const lockedEntityId = useStore((s) => s.lockedEntityId);
     const setCameraPosition = useStore((s) => s.setCameraPosition);
@@ -98,6 +100,7 @@ enableLighting,
             const defs = managed.plugin.getFilterDefinitions?.() || [];
             const active = filters[pluginId] || {};
             applyFilters(entities, defs, active).forEach((entity) => {
+                if (opsSimOnly && !isSimulatedEntity(entity)) return;
                 const originalOptions = getCachedRenderOptions(managed.plugin, entity);
 
                 // Apply color overrides
@@ -112,7 +115,7 @@ enableLighting,
             });
         });
         return result;
-    }, [layers, entitiesByPlugin, filters, pluginSettings]);
+    }, [layers, entitiesByPlugin, filters, pluginSettings, opsSimOnly]);
 
     const { isGoogle3D } = useImageryManager(viewerRef.current, viewerReady);
     useBorders(viewerRef.current, showLabels, isGoogle3D);

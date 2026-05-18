@@ -1,6 +1,8 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { auth } from "@/lib/auth";
 import { agentBus, type AgentAction } from "@/lib/agent/bus";
+import { assertScenariosEnabled } from "@/lib/scenarios/guard";
+import { scenarioStatusForUser, startScenario, stopScenario } from "@/lib/scenarios/runner";
 
 /**
  * POST /api/agent/publish
@@ -38,6 +40,42 @@ export async function POST(req: NextRequest) {
         );
     }
 
+    if (body.action === "scenario_start") {
+        try {
+            assertScenariosEnabled();
+            const status = await startScenario(userId, body.caseId);
+            return NextResponse.json({
+                ok: true,
+                status,
+                subscribers: agentBus.subscribersFor(userId),
+            });
+        } catch (e) {
+            const message = e instanceof Error ? e.message : "Scenario start failed";
+            return NextResponse.json({ error: message }, { status: 400 });
+        }
+    }
+
+    if (body.action === "scenario_stop") {
+        try {
+            assertScenariosEnabled();
+            await stopScenario(userId);
+            return NextResponse.json({
+                ok: true,
+                subscribers: agentBus.subscribersFor(userId),
+            });
+        } catch (e) {
+            const message = e instanceof Error ? e.message : "Scenario stop failed";
+            return NextResponse.json({ error: message }, { status: 400 });
+        }
+    }
+
+    if (body.action === "scenario_status") {
+        return NextResponse.json({
+            ok: true,
+            status: scenarioStatusForUser(userId),
+        });
+    }
+
     const result = agentBus.publish(userId, body);
     return NextResponse.json({
         ok: true,
@@ -56,5 +94,14 @@ function isAgentAction(v: unknown): v is AgentAction {
         || a === "highlight_layer"
         || a === "select_entity"
         || a === "ping"
+        || a === "task_created"
+        || a === "task_updated"
+        || a === "alert_created"
+        || a === "alert_dismissed"
+        || a === "authorization_changed"
+        || a === "sim_filter"
+        || a === "scenario_start"
+        || a === "scenario_stop"
+        || a === "scenario_status"
     );
 }

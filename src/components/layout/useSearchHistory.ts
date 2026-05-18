@@ -6,12 +6,13 @@
 import { useState, useCallback } from "react";
 import type { SearchResult } from "./useSearch";
 
-const STORAGE_KEY = "wwv_search_history";
+const STORAGE_KEY = "grond_search_history";
+const LEGACY_STORAGE_KEY = "wwv_search_history";
 const MAX_HISTORY = 10;
 
 function readHistory(): SearchResult[] {
     try {
-        const raw = localStorage.getItem(STORAGE_KEY);
+        const raw = localStorage.getItem(STORAGE_KEY) ?? localStorage.getItem(LEGACY_STORAGE_KEY);
         return raw ? (JSON.parse(raw) as SearchResult[]) : [];
     } catch {
         return [];

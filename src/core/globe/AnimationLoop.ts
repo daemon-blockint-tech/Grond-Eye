@@ -18,7 +18,7 @@ import {
 declare global {
     interface Window {
         /** Animation-loop frame counter. Exposed for external plugin throttling. */
-        _wwvFrameCount?: number;
+        _grondFrameCount?: number;
     }
 }
 
@@ -138,7 +138,7 @@ export function createUpdateLoop(
 
         const Dh = Math.sqrt(camDistSqr - R2);
         const frame = frameCount++;
-        window._wwvFrameCount = frame;
+        window._grondFrameCount = frame;
         const isStaticCullFrame = frame % STATIC_HORIZON_INTERVAL === 0;
         const selectedId = state.selectedEntity?.id ?? null;
         const hoveredId = hoveredEntityIdRef.current;

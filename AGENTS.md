@@ -1,8 +1,10 @@
-# WorldWideView — Agent Rules
+# Grond — Agent Rules
 
 ## 1. Project Identity
 
-WorldWideView is a **real-time geospatial intelligence engine** that visualizes live global data on an interactive 3D globe. Built with **Next.js 16**, **CesiumJS**, **React 19**, and **Zustand**, it renders everything from live aircraft and maritime vessels to conflict events, satellites, and environmental data — all through a modular plugin architecture.
+**Grond** (formerly WorldWideView) is a **real-time geospatial intelligence engine** that visualizes live global data on an interactive 3D globe. Built with **Next.js 16**, **CesiumJS**, **React 19**, and **Zustand**, it renders everything from live aircraft and maritime vessels to conflict events, satellites, and environmental data — all through a modular plugin architecture.
+
+Primary routes: **`/ops`** (operations shell), **`/admin/*`** (platform admin), **`/login`** and **`/setup`** (auth). Post-login default is **`/ops`** for all roles.
 
 ### Target Inspiration
 Our primary design, feature-set, and operational layout goal is to mimic the structure and capabilities of `www.worldmonitor.app`.
@@ -42,12 +44,12 @@ Our primary design, feature-set, and operational layout goal is to mimic the str
 
 Key invariants agents MUST respect:
 
-- **Plugin source of truth**: `@worldwideview/wwv-plugin-sdk` — never define plugin types locally.
+- **Plugin source of truth**: `@grond/plugin-sdk` — never define plugin types locally.
 - **All-Bundle Model**: every plugin (seeder, CDN-loaded, static-compiled, active-proxied) is dynamically imported via `loadPluginFromManifest` using `import(/* webpackIgnore: true */ entry)`. Legacy `StaticDataPlugin` / `DeclarativePlugin` runtimes are deprecated.
 - **Agnostic frontend**: the renderer has no concept of a "unified" data engine. Each plugin **MUST declare its own `streamUrl`** in its manifest or config; do not assume one shared pipe.
 - **Nine Zustand slices** under `src/core/state/`: `globe`, `layers`, `timeline`, `ui`, `filter`, `data`, `config`, `favorites`, `geojson`. Access via `useStore` in React, `useStore.getState()` elsewhere.
 - **Primitive-based rendering** (not Cesium Entity API). Point/Billboard/Label/Polyline collections only. Never mix `size`/`outlineWidth`/`outlineColor` onto billboard entities — GPU silently clips.
-- **Three editions** controlled by `NEXT_PUBLIC_WWV_EDITION` (`local` / `cloud` / `demo`); feature flags derived in `src/core/edition.ts`.
+- **Three editions** controlled by `NEXT_PUBLIC_GROND_EDITION` (`local` / `cloud` / `demo`); feature flags derived in `src/core/edition.ts` (legacy `NEXT_PUBLIC_WWV_EDITION` fallback one release).
 
 ---
 
@@ -60,7 +62,7 @@ Key invariants agents MUST respect:
 ### 5.2 Import Aliases
 
 - `@/*` → `./src/*`
-- `@worldwideview/wwv-plugin-sdk` → `./packages/wwv-plugin-sdk/src`
+- `@grond/plugin-sdk` → `./packages/grond-plugin-sdk/src`
 - Plugin modules are dynamically imported and do not require individual `tsconfig.json` aliases
 
 ### 5.3 CSS Rules

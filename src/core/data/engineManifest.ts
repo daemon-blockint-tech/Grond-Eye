@@ -2,6 +2,8 @@
 // Fetches /manifest from a local data engine to discover available seeders.
 // Used by resolveEngineUrl for per-plugin local vs cloud routing.
 
+import { getPluginDataEngineUrl } from "@/core/grondEnv";
+
 let localManifest: string[] | null = null;
 let manifestFetched = false;
 
@@ -9,11 +11,11 @@ let manifestFetched = false;
  * Resolve the base URL of the local data engine.
  *
  * Priority:
- *   1. `NEXT_PUBLIC_WWV_PLUGIN_DATA_ENGINE_URL` env var — if the operator
+ *   1. `NEXT_PUBLIC_GROND_PLUGIN_DATA_ENGINE_URL` env var — if the operator
  *      pointed plugins at a specific engine URL (most common in
  *      self-host setups), use that. We strip any trailing `/stream`
  *      since the var is sometimes set to the WebSocket URL.
- *   2. `localhost:5001` — matches the port wwv-data-engine's
+ *   2. `localhost:5001` — matches the port grond-data-engine's
  *      docker-compose.yaml binds. The previous default of 5000 was
  *      always wrong: the engine has listened on 5001 since the v2
  *      refactor. Port 5000 is also famously hijacked on macOS by the
@@ -22,7 +24,7 @@ let manifestFetched = false;
  *      "no local engine" results on every macOS dev machine.
  */
 function getLocalEngineBase() {
-    const envUrl = process.env.NEXT_PUBLIC_WWV_PLUGIN_DATA_ENGINE_URL;
+    const envUrl = getPluginDataEngineUrl();
     if (envUrl) {
         // Strip a trailing `/stream` if present (the var is sometimes
         // set to the WebSocket URL); also normalize ws[s]:// to http[s]://.

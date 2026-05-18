@@ -1,6 +1,6 @@
 /**
  * Construct a jsdelivr CDN URL for a plugin's ESM bundle.
- * @param npmPackage npm package name (e.g. "wwv-plugin-earthquakes" or "@scope/name")
+ * @param npmPackage npm package name (e.g. "grond-plugin-earthquakes" or "@scope/name")
  * @param version semver version (e.g. "1.0.0")
  */
 export function buildCdnUrl(npmPackage: string, version: string): string {

@@ -35,7 +35,7 @@ const loadEnv = (file) => {
 
 loadEnv('.env');
 
-const teardownDbOnExit = process.env.WWV_TEARDOWN_DB_ON_EXIT === 'true' || process.env.WWV_TEARDOWN_DB_ON_EXIT === '1';
+const teardownDbOnExit = process.env.GROND_TEARDOWN_DB_ON_EXIT === 'true' || process.env.GROND_TEARDOWN_DB_ON_EXIT === '1' || process.env.WWV_TEARDOWN_DB_ON_EXIT === 'true' || process.env.WWV_TEARDOWN_DB_ON_EXIT === '1';
 
 const { result, commands } = concurrently(
   [

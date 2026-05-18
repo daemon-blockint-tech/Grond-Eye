@@ -6,39 +6,26 @@ import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
+import { createRequire } from 'node:module';
 
 export const TEST_USER_EMAIL = 'playwright-test@worldwideview.local';
 
-function loadEnv() {
-  try {
-    const envPath = path.resolve(process.cwd(), '.env');
-    if (fs.existsSync(envPath)) {
-      const content = fs.readFileSync(envPath, 'utf8');
-      content.split('\n').forEach(line => {
-        const match = line.match(/^\s*([\w.-]+)\s*=\s*(.*)?\s*$/);
-        if (match) {
-          const key = match[1];
-          let value = match[2] || '';
-          if (value.startsWith('"') && value.endsWith('"')) value = value.slice(1, -1);
-          if (value.startsWith("'") && value.endsWith("'")) value = value.slice(1, -1);
-          process.env[key] = value;
-        }
-      });
-    }
-  } catch (e) {
-    // Ignore read errors
-  }
-}
+const require = createRequire(import.meta.url);
+const { loadEnvFiles, getDatabaseUrl } = require('../scripts/load-env.mjs') as {
+  loadEnvFiles: (cwd?: string) => void;
+  getDatabaseUrl: () => string;
+};
 
 async function globalSetup(config: FullConfig) {
-  loadEnv();
+  loadEnvFiles();
   const { storageState, baseURL } = config.projects[0].use;
   
   if (!baseURL) {
     throw new Error('baseURL is not defined in Playwright config');
   }
 
-  const pool = new Pool({ connectionString: process.env.DATABASE_URL || "postgresql://postgres:postgres@127.0.0.1:5432/worldwideview?schema=public" });
+  const databaseUrl = getDatabaseUrl();
+  const pool = new Pool({ connectionString: databaseUrl });
   const adapter = new PrismaPg(pool);
   const prisma = new PrismaClient({ adapter });
 
@@ -51,13 +38,18 @@ async function globalSetup(config: FullConfig) {
         dbConnected = true;
         break;
       } catch (e) {
-        console.log(`[Setup] Waiting for database (attempt ${i + 1}/5)...`);
+        const hint = e instanceof Error ? e.message : String(e);
+        console.log(`[Setup] Waiting for database (attempt ${i + 1}/5)... ${hint}`);
         await new Promise(resolve => setTimeout(resolve, 2000));
       }
     }
 
     if (!dbConnected) {
-      throw new Error('[Setup] Could not connect to database after 5 attempts.');
+      throw new Error(
+        `[Setup] Could not connect to database after 5 attempts. ` +
+        `DATABASE_URL=${databaseUrl.replace(/:[^:@/]+@/, ':***@')}. ` +
+        `Ensure Postgres is running (pnpm run dev or docker compose up -d db).`,
+      );
     }
 
     // 2. Generate a secure random password and hash it

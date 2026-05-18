@@ -8,7 +8,7 @@
  * actions onto the existing `dataBus` so the running React + Cesium app
  * picks them up the same way it picks up any other UI event.
  *
- * Per-user scoping: in a multi-tenant WWV deployment, user A's external
+ * Per-user scoping: in a multi-tenant Grond deployment, user A's external
  * tool publishing to /api/agent/publish must NOT reach user B's open
  * browser tab. The publish + subscribe routes pass `session.user.id`,
  * the bus routes deliveries to that user's subscriber set only.
@@ -18,13 +18,45 @@
  * target — extending this is straightforward when needed.
  */
 
+export type OpsTaskPayload = {
+    id: string;
+    title: string;
+    status: "active" | "completed" | "cancelled";
+    entityPluginId?: string | null;
+    entityId?: string | null;
+    lat?: number | null;
+    lon?: number | null;
+    createdAt: string;
+    updatedAt: string;
+};
+
+export type OpsAlertPayload = {
+    id: string;
+    severity: "info" | "warn" | "critical";
+    title: string;
+    body?: string | null;
+    source?: string | null;
+    entityPluginId?: string | null;
+    entityId?: string | null;
+    createdAt: string;
+};
+
 export type AgentAction =
     | { action: "fly_to"; lat: number; lon: number; alt?: number; heading?: number; distance?: number }
     | { action: "face_towards"; lat: number; lon: number; alt?: number }
     | { action: "layer_toggle"; pluginId: string; enabled: boolean }
     | { action: "highlight_layer"; pluginId: string }
     | { action: "select_entity"; pluginId: string; entityId: string }
-    | { action: "ping"; ts: number };
+    | { action: "ping"; ts: number }
+    | { action: "task_created"; task: OpsTaskPayload }
+    | { action: "task_updated"; task: OpsTaskPayload }
+    | { action: "alert_created"; alert: OpsAlertPayload }
+    | { action: "alert_dismissed"; alertId: string }
+    | { action: "authorization_changed" }
+    | { action: "sim_filter"; enabled: boolean }
+    | { action: "scenario_start"; caseId: string }
+    | { action: "scenario_stop" }
+    | { action: "scenario_status" };
 
 interface Subscriber {
     id: string;
@@ -87,7 +119,8 @@ class AgentBus {
 // don't drop and reconnect on every code change in development.
 declare global {
 
+    var __GROND_AGENT_BUS__: AgentBus | undefined;
     var __WWV_AGENT_BUS__: AgentBus | undefined;
 }
 
-export const agentBus: AgentBus = globalThis.__WWV_AGENT_BUS__ ?? (globalThis.__WWV_AGENT_BUS__ = new AgentBus());
+export const agentBus: AgentBus = globalThis.__GROND_AGENT_BUS__ ?? globalThis.__WWV_AGENT_BUS__ ?? (globalThis.__GROND_AGENT_BUS__ = new AgentBus());

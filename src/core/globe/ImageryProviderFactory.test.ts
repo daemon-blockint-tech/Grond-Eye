@@ -1,25 +1,33 @@
-import {
- describe, it, expect, vi, beforeEach
-} from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 
 import { IonImageryProvider } from "cesium";
-import { createImageryProvider, createOsmProvider } from "./ImageryProviderFactory";
+import { resetEarthEngineHealthCache } from "@/lib/earth-engine/healthClient";
+import {
+    createImageryProvider,
+    createOsmProvider,
+    createGeeImageryProvider,
+    createBlueMarbleGibsProvider,
+    hasCesiumIonAccess,
+    migrateImageryLayerId,
+} from "./ImageryProviderFactory";
 
-// Mock cesium before importing the module under test
 vi.mock("cesium", () => {
     class UrlTemplateImageryProvider {
         _type = "UrlTemplate";
         url: string;
         subdomains?: string[];
-        constructor(opts: any) { this.url = opts.url; this.subdomains = opts.subdomains; }
+        constructor(opts: { url: string; subdomains?: string[] }) {
+            this.url = opts.url;
+            this.subdomains = opts.subdomains;
+        }
     }
-
-    const BingMapsImageryProvider = {
-        fromUrl: vi.fn().mockResolvedValue({ _type: "Bing" }),
-    };
 
     const IonImageryProvider = {
         fromAssetId: vi.fn().mockResolvedValue({ _type: "Ion" }),
+    };
+
+    const Ion = {
+        defaultAccessToken: undefined as string | undefined,
     };
 
     const ArcGisMapServerImageryProvider = {
@@ -27,85 +35,163 @@ vi.mock("cesium", () => {
     };
 
     return {
+        Ion,
         IonImageryProvider,
-        BingMapsImageryProvider,
         ArcGisMapServerImageryProvider,
         UrlTemplateImageryProvider,
-        BingMapsStyle: { AERIAL: "Aerial", AERIAL_WITH_LABELS: "AerialWithLabels", ROAD: "Road" },
     };
 });
 
+const fetchMock = vi.fn();
+
 beforeEach(() => {
     vi.clearAllMocks();
-    delete process.env.NEXT_PUBLIC_BING_MAPS_KEY;
+    resetEarthEngineHealthCache();
+    vi.stubGlobal("fetch", fetchMock);
+});
+
+afterEach(() => {
+    vi.unstubAllGlobals();
+});
+
+describe("migrateImageryLayerId", () => {
+    it("maps legacy Bing ids to GEE or OSM", () => {
+        expect(migrateImageryLayerId("bing-aerial")).toBe("gee-sentinel-rgb");
+        expect(migrateImageryLayerId("bing-labels")).toBe("osm");
+        expect(migrateImageryLayerId("bing-road")).toBe("osm");
+        expect(migrateImageryLayerId("osm")).toBe("osm");
+    });
+});
+
+describe("hasCesiumIonAccess", () => {
+    it("is false without env token or Ion.defaultAccessToken", () => {
+        expect(hasCesiumIonAccess()).toBe(false);
+    });
+});
+
+describe("createBlueMarbleGibsProvider", () => {
+    it("returns a UrlTemplateImageryProvider for NASA GIBS WMTS", () => {
+        const provider = createBlueMarbleGibsProvider();
+        expect((provider as { url: string }).url).toContain("gibs-a.earthdata.nasa.gov");
+        expect((provider as { url: string }).url).toContain("BlueMarble_NextGeneration");
+    });
 });
 
 describe("createOsmProvider", () => {
     it("returns a UrlTemplateImageryProvider for OSM tiles", () => {
         const provider = createOsmProvider();
         expect(provider).toBeDefined();
-        expect((provider as any).url).toContain("openstreetmap.org");
+        expect((provider as { url: string }).url).toContain("openstreetmap.org");
+    });
+});
+
+describe("createGeeImageryProvider", () => {
+    it("fetches tile template from the Earth Engine API", async () => {
+        fetchMock.mockResolvedValue({
+            ok: true,
+            json: async () => ({
+                tileUrlTemplate:
+                    "https://earthengine.googleapis.com/v1/test/tiles/{z}/{x}/{y}?token=t",
+            }),
+        });
+
+        const provider = await createGeeImageryProvider("gee-sentinel-rgb");
+        expect(fetchMock).toHaveBeenCalledWith(
+            expect.stringContaining("/api/earth-engine/map?preset=gee-sentinel-rgb"),
+        );
+        expect((provider as { url: string }).url).toContain("earthengine.googleapis.com");
+    });
+
+    it("throws when the API returns an error", async () => {
+        fetchMock.mockResolvedValue({
+            ok: false,
+            status: 503,
+            text: async () => "not configured",
+        });
+
+        await expect(createGeeImageryProvider("gee-sentinel-rgb")).rejects.toThrow(/503/);
     });
 });
 
 describe("createImageryProvider", () => {
-    it("returns Google tiles for bing-aerial when no Bing key (first tier)", async () => {
+    it("returns GEE provider for gee-sentinel-rgb when health is configured", async () => {
+        fetchMock
+            .mockResolvedValueOnce({
+                ok: true,
+                json: async () => ({ configured: true }),
+            })
+            .mockResolvedValueOnce({
+                ok: true,
+                json: async () => ({
+                    tileUrlTemplate:
+                        "https://earthengine.googleapis.com/v1/a/tiles/{z}/{x}/{y}",
+                }),
+            });
+
+        const provider = await createImageryProvider("gee-sentinel-rgb");
+        expect((provider as { url: string }).url).toContain("earthengine.googleapis.com");
+    });
+
+    it("uses OSM when Earth Engine health reports not configured", async () => {
+        fetchMock.mockResolvedValueOnce({
+            ok: true,
+            json: async () => ({ configured: false }),
+        });
+
+        const provider = await createImageryProvider("gee-sentinel-rgb");
+        expect((provider as { url: string }).url).toContain("openstreetmap.org");
+        expect(fetchMock).toHaveBeenCalledTimes(1);
+        expect(fetchMock).toHaveBeenCalledWith("/api/earth-engine/health");
+    });
+
+    it("migrates bing-aerial to GEE sentinel when configured", async () => {
+        fetchMock
+            .mockResolvedValueOnce({
+                ok: true,
+                json: async () => ({ configured: true }),
+            })
+            .mockResolvedValueOnce({
+                ok: true,
+                json: async () => ({
+                    tileUrlTemplate:
+                        "https://earthengine.googleapis.com/v1/a/tiles/{z}/{x}/{y}",
+                }),
+            });
+
         const provider = await createImageryProvider("bing-aerial");
-        expect((provider as any).url).toContain("google.com");
-        expect((provider as any).url).toContain("lyrs=s");
-        expect(IonImageryProvider.fromAssetId).not.toHaveBeenCalled();
+        expect(fetchMock).toHaveBeenCalledWith(
+            expect.stringContaining("preset=gee-sentinel-rgb"),
+        );
+        expect((provider as { url: string }).url).toContain("earthengine.googleapis.com");
     });
 
-    it("returns Google tiles for bing-labels when no Bing key (hybrid)", async () => {
-        const provider = await createImageryProvider("bing-labels");
-        expect((provider as any).url).toContain("google.com");
-        expect((provider as any).url).toContain("lyrs=y");
-    });
-
-    it("returns Google tiles for bing-road when no Bing key (roads)", async () => {
+    it("migrates bing-road to OSM", async () => {
         const provider = await createImageryProvider("bing-road");
-        expect((provider as any).url).toContain("google.com");
-        expect((provider as any).url).toContain("lyrs=m");
+        expect((provider as { url: string }).url).toContain("openstreetmap.org");
+        expect(fetchMock).not.toHaveBeenCalled();
     });
 
-    it("returns Google tiles for blue-marble when no keys", async () => {
+    it("uses NASA GIBS when Cesium Ion token is not configured", async () => {
         const provider = await createImageryProvider("blue-marble");
-        expect((provider as any).url).toContain("google.com");
-    });
-
-    it("falls back to Ion when Google provider throws", async () => {
-        const { UrlTemplateImageryProvider } = await import("cesium");
-        const origImpl = UrlTemplateImageryProvider;
-
-        // Make UrlTemplateImageryProvider throw only for google URLs
-        // We need to test the fallback path - simulate by making IonImageryProvider
-        // the expected path when Google fails
-        vi.mocked(IonImageryProvider.fromAssetId).mockResolvedValue({ _type: "Ion" } as any);
-
-        // Since UrlTemplateImageryProvider is a constructor and won't normally throw,
-        // the Google tier will succeed. Test Ion fallback via useImageryManager catch instead.
-        // Here we verify Ion is called when it's the path taken.
-        const provider = await createImageryProvider("bing-aerial");
-        // Google succeeds first, so Ion should NOT be called
+        expect((provider as { url: string }).url).toContain("gibs-a.earthdata.nasa.gov");
         expect(IonImageryProvider.fromAssetId).not.toHaveBeenCalled();
-        expect((provider as any).url).toContain("google.com");
     });
 
-    it("uses Bing directly when NEXT_PUBLIC_BING_MAPS_KEY is set", async () => {
-        process.env.NEXT_PUBLIC_BING_MAPS_KEY = "test-bing-key";
-        const { BingMapsImageryProvider } = await import("cesium");
-        const provider = await createImageryProvider("bing-aerial");
-        expect(BingMapsImageryProvider.fromUrl).toHaveBeenCalled();
-        expect((provider as any)._type).toBe("Bing");
-    });
-
-    it("returns OSM for 'osm' layer directly", async () => {
-        const provider = await createImageryProvider("osm");
-        expect((provider as any).url).toContain("openstreetmap.org");
+    it("uses Ion for blue-marble when Cesium Ion token is configured", async () => {
+        vi.stubEnv("NEXT_PUBLIC_CESIUM_ION_TOKEN", "test-ion-token");
+        const provider = await createImageryProvider("blue-marble");
+        expect(IonImageryProvider.fromAssetId).toHaveBeenCalledWith(3845);
+        expect((provider as { _type: string })._type).toBe("Ion");
+        vi.unstubAllEnvs();
     });
 
     it("returns OSM for unknown layer ids", async () => {
         const provider = await createImageryProvider("nonexistent-layer");
-        expect((provider as any).url).toContain("openstreetmap.org");
+        expect((provider as { url: string }).url).toContain("openstreetmap.org");
+    });
+
+    it("returns OSM for osm layer directly", async () => {
+        const provider = await createImageryProvider("osm");
+        expect((provider as { url: string }).url).toContain("openstreetmap.org");
     });
 });

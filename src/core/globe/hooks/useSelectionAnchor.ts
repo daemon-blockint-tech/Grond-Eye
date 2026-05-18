@@ -37,7 +37,7 @@ export function useSelectionAnchor(
             }
 
             entity = viewer.entities.add({
-                id: "__wwv_selection_anchor",
+                id: "__grond_selection_anchor",
                 point: {
                     pixelSize: 0,
                 },

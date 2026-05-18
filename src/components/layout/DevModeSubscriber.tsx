@@ -1,6 +1,6 @@
 /**
  * @file DevModeSubscriber.tsx
- * @description Development-only component that connects to the `wwv-cli` dev server.
+ * @description Development-only component that connects to the `grond-cli` dev server.
  * Enables hot-reloading of local plugins during development.
  */
 
@@ -29,11 +29,11 @@ export function DevModeSubscriber() {
         let reconnectTimer: NodeJS.Timeout;
 
         const connect = () => {
-            // Attempt to connect to the wwv-cli dev server default port
-            ws = new WebSocket("ws://localhost:24601/__wwv_dev__");
+            // Attempt to connect to the grond-cli dev server default port
+            ws = new WebSocket("ws://localhost:24601/__grond_dev__");
 
             ws.onopen = () => {
-                console.log("[DevMode] Connected to WWV Dev Server 🔧");
+                console.log("[DevMode] Connected to Grond Dev Server 🔧");
                 setConnected(true);
             };
 
@@ -66,7 +66,7 @@ export function DevModeSubscriber() {
 
             ws.onclose = () => {
                 if (connected) {
-                    console.log("[DevMode] Disconnected from WWV Dev Server.");
+                    console.log("[DevMode] Disconnected from Grond Dev Server.");
                     setConnected(false);
                 }
                 reconnectTimer = setTimeout(connect, 2000);

@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 test.describe('Bottom Panel System', () => {
     test.beforeEach(async ({ page }) => {
         // Log in by loading the auth state (handled by global setup/playwright config)
-        await page.goto('/');
+        await page.goto('/ops');
         // Wait for hydration and basic UI to load
         await page.waitForSelector('[data-testid="app-ready"]', { state: 'attached', timeout: 45000 });
         

@@ -17,7 +17,7 @@ import {
     PolylineGlowMaterialProperty,
 } from "cesium";
 import type { Viewer as CesiumViewer } from "cesium";
-import type { GeoEntity } from "@worldwideview/wwv-plugin-sdk";
+import type { GeoEntity } from "@grond/plugin-sdk";
 import {
     computeFrustumEdges,
     FRUSTUM_DEFAULTS,

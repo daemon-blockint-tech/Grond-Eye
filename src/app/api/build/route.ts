@@ -6,7 +6,7 @@ import path from "node:path";
  * GET /api/build
  *
  * Lightweight build identification — lets you confirm exactly which build
- * the running browser tab is talking to. Pair with the `[wwv build] ...`
+ * the running browser tab is talking to. Pair with the `[grond build] ...`
  * client-side console log so a refresh mismatch (browser holding stale
  * chunks) becomes obvious instead of looking like a feature regression.
  *
@@ -22,10 +22,12 @@ function readMaybe(p: string): string | null {
     }
 }
 
-const BUILD_ID = process.env.NEXT_PUBLIC_WWV_BUILD_ID
+const BUILD_ID = process.env.NEXT_PUBLIC_GROND_BUILD_ID
+    ?? process.env.NEXT_PUBLIC_WWV_BUILD_ID
     ?? readMaybe(path.join(process.cwd(), ".build-id"))
     ?? "dev";
-const BUILD_AT = process.env.NEXT_PUBLIC_WWV_BUILD_AT
+const BUILD_AT = process.env.NEXT_PUBLIC_GROND_BUILD_AT
+    ?? process.env.NEXT_PUBLIC_WWV_BUILD_AT
     ?? readMaybe(path.join(process.cwd(), ".build-at"))
     ?? null;
 
@@ -35,8 +37,8 @@ export async function GET() {
         built_at: BUILD_AT,
         public_flags: {
             agent_bus_enabled:
-                process.env.NEXT_PUBLIC_WWV_AGENT_BUS_ENABLED === "true",
-            edition: process.env.NEXT_PUBLIC_WWV_EDITION ?? null,
+                process.env.NEXT_PUBLIC_GROND_AGENT_BUS_ENABLED === "true" || process.env.NEXT_PUBLIC_WWV_AGENT_BUS_ENABLED === "true",
+            edition: process.env.NEXT_PUBLIC_GROND_EDITION ?? process.env.NEXT_PUBLIC_WWV_EDITION ?? null,
         },
     });
 }

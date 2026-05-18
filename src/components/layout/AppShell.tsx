@@ -1,6 +1,6 @@
 /**
  * @file AppShell.tsx
- * @description The root layout and orchestration component for WorldWideView.
+ * @description The root layout and orchestration component for Grond.
  * Responsible for platform initialization, plugin registration, global state hydration,
  * and managing the transition from boot sequence to interactive state.
  * @module src/components/layout
@@ -72,8 +72,8 @@ export function AppShell() {
     // Hydrate theme on mount
     useEffect(() => {
         try {
-            const storedTheme = localStorage.getItem("wwv-theme");
-            if (storedTheme === "light" || storedTheme === "dark") {
+            const storedTheme = localStorage.getItem("grond-theme") || localStorage.getItem("wwv-theme");
+            if (storedTheme === "light" || storedTheme === "dark" || storedTheme === "black" || storedTheme === "legacy") {
                 setTheme(storedTheme);
             }
         } catch { /* ignore hydration errors */ }

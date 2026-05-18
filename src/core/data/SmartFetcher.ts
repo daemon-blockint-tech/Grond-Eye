@@ -1,3 +1,5 @@
+import { readJsonResponse } from "@/lib/http/readJsonResponse";
+
 /**
  * SmartFetcher
  * Encapsulates a robust, tiered fetching strategy to bypass CORS and handle large payloads.
@@ -34,7 +36,7 @@ export class SmartFetcher {
             throw new Error(`[SmartFetcher] Local proxy failed to load URL: ${url} (Status: ${localRes.status})`);
         }
 
-        return await localRes.json();
+        return readJsonResponse(localRes);
     }
 
     private static async parseResponse(res: Response): Promise<any> {

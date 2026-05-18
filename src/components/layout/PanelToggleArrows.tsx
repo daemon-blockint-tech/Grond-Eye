@@ -5,22 +5,39 @@ import { ChevronRight, ChevronLeft } from "lucide-react";
 import { useIsMobile } from "@/core/hooks/useIsMobile";
 import { trackEvent } from "@/lib/analytics";
 
-export function PanelToggleArrows() {
+export type PanelToggleLayout = "ops" | "legacy";
+
+export interface PanelToggleArrowsProps {
+    /** Ops shell uses opsNav; legacy AppShell uses leftSidebarOpen. */
+    layout?: PanelToggleLayout;
+}
+
+/**
+ * Edge toggles for left layers panel and right data configuration panel.
+ * On /ops desktop, left toggle uses opsNav instead of legacy leftSidebarOpen.
+ */
+export function PanelToggleArrows({ layout = "legacy" }: PanelToggleArrowsProps) {
     const isMobile = useIsMobile();
     const leftSidebarOpen = useStore((s) => s.leftSidebarOpen);
     const configPanelOpen = useStore((s) => s.configPanelOpen);
+    const leftPanelOpen = useStore((s) => s.leftPanelOpen);
     const openMobilePanel = useStore((s) => s.openMobilePanel);
     const mobileRightPanelGlow = useStore((s) => s.mobileRightPanelGlow);
 
     const toggleLeftSidebar = useStore((s) => s.toggleLeftSidebar);
     const toggleConfigPanel = useStore((s) => s.toggleConfigPanel);
+    const toggleLeftTab = useStore((s) => s.toggleLeftTab);
     const setOpenMobilePanel = useStore((s) => s.setOpenMobilePanel);
 
     const filterCount = useStore((s) => Object.values(s.filters).reduce((sum, pf) => sum + Object.keys(pf).length, 0));
 
+    const isOpsLayout = layout === "ops";
+
     const handleLeftToggle = () => {
         if (isMobile) {
             setOpenMobilePanel("left");
+        } else if (isOpsLayout) {
+            toggleLeftTab("layers");
         } else {
             toggleLeftSidebar();
         }
@@ -36,27 +53,31 @@ export function PanelToggleArrows() {
         trackEvent("panel-toggle", { panel: "right", open: !isRightOpen });
     };
 
-    const isLeftOpen = isMobile ? openMobilePanel === "left" : leftSidebarOpen;
+    const isLeftOpen = isMobile
+        ? openMobilePanel === "left"
+        : isOpsLayout
+            ? leftPanelOpen
+            : leftSidebarOpen;
     const isRightOpen = isMobile ? openMobilePanel === "right" : configPanelOpen;
 
     return (
         <>
-            {/* Left Toggle — always fixed to left edge on mobile */}
             <button
                 className={`panel-toggle-btn panel-toggle-btn--left ${isLeftOpen ? "panel-toggle-btn--open" : ""} ${isMobile ? "panel-toggle-btn--mobile" : ""}`}
                 onClick={handleLeftToggle}
-                title="Toggle Layers Panel"
+                title="Toggle layers panel"
                 data-testid="panel-toggle-left"
+                type="button"
             >
                 {isLeftOpen ? <ChevronLeft size={24} /> : <ChevronRight size={24} />}
             </button>
 
-            {/* Right Toggle — always fixed to right edge on mobile */}
             <button
                 className={`panel-toggle-btn panel-toggle-btn--right ${isRightOpen ? "panel-toggle-btn--open" : ""} ${isMobile ? "panel-toggle-btn--mobile" : ""} ${isMobile && mobileRightPanelGlow ? "panel-toggle-btn--glow" : ""}`}
                 onClick={handleRightToggle}
-                title="Toggle Data Configuration"
+                title="Toggle data configuration"
                 data-testid="panel-toggle-right"
+                type="button"
             >
                 {isRightOpen ? <ChevronRight size={24} /> : <ChevronLeft size={24} />}
 

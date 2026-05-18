@@ -34,7 +34,7 @@ export async function validateMarketplaceAuth(
     }
 
     return NextResponse.json(
-        { error: "Unauthorized — sign in to WWV or provide a valid token" },
+        { error: "Unauthorized — sign in to Grond or provide a valid token" },
         { status: 401 },
     );
 }

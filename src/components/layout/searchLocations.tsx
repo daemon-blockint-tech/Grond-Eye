@@ -1,16 +1,34 @@
 import { MapPin } from "lucide-react";
 import { buildUserKeyHeaders } from "@/lib/userApiKeys";
-import { categorizePlace, type PlaceCategory } from "./placeCategories";
+import { categorizePlace } from "./placeCategories";
 import type { SearchResult, SearchSection } from "./searchTypes";
 
-export async function searchLocations(query: string): Promise<SearchSection | null> {
+export type PlacesSearchStatus = "ok" | "unconfigured" | "error" | "zero_results";
+
+export interface PlacesSearchOutcome {
+    section: SearchSection | null;
+    status: PlacesSearchStatus;
+}
+
+/**
+ * Queries Google Places autocomplete for map search.
+ * @param query - User search string.
+ */
+export async function searchLocations(query: string): Promise<PlacesSearchOutcome> {
     try {
         const res = await fetch(`/api/places/search?input=${encodeURIComponent(query)}`, {
             headers: buildUserKeyHeaders(),
         });
-        if (!res.ok) return null;
+        if (res.status === 503) {
+            return { section: null, status: "unconfigured" };
+        }
+        if (!res.ok) {
+            return { section: null, status: "error" };
+        }
         const data = await res.json();
-        if (!data.predictions?.length) return null;
+        if (!data.predictions?.length) {
+            return { section: null, status: "zero_results" };
+        }
 
         const results: SearchResult[] = data.predictions.map(
             (p: { placeId: string; mainText: string; secondaryText: string; types?: string[] }, i: number) => {
@@ -29,13 +47,16 @@ export async function searchLocations(query: string): Promise<SearchSection | nu
         );
 
         return {
-            title: "Places",
-            icon: <MapPin size={16} />,
-            results: results.slice(0, 5),
-            maxScore: results[0].score,
+            section: {
+                title: "Places",
+                icon: <MapPin size={16} />,
+                results: results.slice(0, 5),
+                maxScore: results[0].score,
+            },
+            status: "ok",
         };
     } catch (err) {
         console.error("Error fetching places:", err);
-        return null;
+        return { section: null, status: "error" };
     }
 }

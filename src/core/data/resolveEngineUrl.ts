@@ -1,10 +1,11 @@
 // src/core/data/resolveEngineUrl.ts
+import { getPluginDataEngineUrl } from "@/core/grondEnv";
 import { pluginManager } from "@/core/plugins/PluginManager";
 import { localEngineHasPlugin } from "./engineManifest";
 
-const CLOUD_ENGINE_URL = "wss://dataenginev2.worldwideview.dev/stream";
+const CLOUD_ENGINE_URL = "wss://dataenginev2.grond.dev/stream";
 
-const RAW_ENGINE_URL = process.env.NEXT_PUBLIC_WWV_PLUGIN_DATA_ENGINE_URL || CLOUD_ENGINE_URL;
+const RAW_ENGINE_URL = getPluginDataEngineUrl() || CLOUD_ENGINE_URL;
 
 /** Normalize a base URL into a valid WebSocket stream URL. */
 function toWsStreamUrl(url: string): string {
@@ -20,7 +21,7 @@ function toWsStreamUrl(url: string): string {
 const DEFAULT_ENGINE_URL = toWsStreamUrl(RAW_ENGINE_URL);
 
 function getLocalWsUrl() {
-    if (process.env.NEXT_PUBLIC_WWV_PLUGIN_DATA_ENGINE_URL) {
+    if (getPluginDataEngineUrl()) {
         return DEFAULT_ENGINE_URL;
     }
     if (typeof window === "undefined") return "ws://localhost:5001/stream";
@@ -33,8 +34,8 @@ function getLocalWsUrl() {
  * 1. Local engine (if running at localhost:5000 and has this plugin's seeder)
  * 2. Plugin's ServerPluginConfig.streamUrl (code-based plugins)
  * 3. Plugin's PluginManifest.dataSource.streamUrl (manifest-based plugins)
- * 4. NEXT_PUBLIC_WWV_PLUGIN_DATA_ENGINE_URL env var
- * 5. Fallback: wss://dataengine.worldwideview.dev/stream (cloud)
+ * 4. NEXT_PUBLIC_GROND_PLUGIN_DATA_ENGINE_URL env var
+ * 5. Fallback: wss://dataengine.grond.dev/stream (cloud)
  */
 export function resolveEngineUrl(pluginId: string): string {
   // 1. Local engine (split-routing) - PRIORITY #1

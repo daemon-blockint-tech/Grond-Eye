@@ -58,7 +58,7 @@ export function GraphicsSettings() {
     useEffect(() => {
         const { resolutionScale, antiAliasing, maxScreenSpaceError, shadowsEnabled, enableLighting, showFps, showOsmBuildings } = mapConfig;
         const graphicsToSave = { resolutionScale, antiAliasing, maxScreenSpaceError, shadowsEnabled, enableLighting, showFps, showOsmBuildings };
-        document.cookie = `wwv_graphics=${encodeURIComponent(JSON.stringify(graphicsToSave))}; path=/; max-age=31536000`; // 1 year
+        document.cookie = `grond_graphics=${encodeURIComponent(JSON.stringify(graphicsToSave))}; path=/; max-age=31536000`; // 1 year
     }, [mapConfig.resolutionScale, mapConfig.antiAliasing, mapConfig.maxScreenSpaceError, mapConfig.shadowsEnabled, mapConfig.enableLighting, mapConfig.showFps, mapConfig.showOsmBuildings]);
 
     const toggle = (key: string, current: boolean) => {

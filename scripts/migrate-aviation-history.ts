@@ -5,6 +5,7 @@
  * It will be removed once the data engine migration is complete.
  */
 import { createClient } from "@supabase/supabase-js";
+import { resolveSupabaseConfig } from "../src/lib/supabase-config";
 import Database from "better-sqlite3";
 import path from "path";
 import fs from "fs";
@@ -18,8 +19,10 @@ if (fs.existsSync(envPath)) {
     dotenv.config();
 }
 
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+const supabaseConfig = resolveSupabaseConfig();
+const SUPABASE_URL = supabaseConfig?.url;
+const SUPABASE_KEY =
+    supabaseConfig?.serviceRoleKey || supabaseConfig?.anonKey;
 
 if (!SUPABASE_URL || !SUPABASE_KEY) {
     console.error("Missing Supabase credentials in .env.local");

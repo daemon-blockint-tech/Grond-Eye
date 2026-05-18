@@ -25,8 +25,8 @@ describe("Monorepo Workspace Integrity", () => {
             const deps = { ...pkg.dependencies, ...pkg.devDependencies, ...pkg.peerDependencies };
 
             for (const [dep, version] of Object.entries(deps)) {
-                // If it's an internal package linking to "@worldwideview/..."
-                if (dep.startsWith("@worldwideview/")) {
+                // If it's an internal package linking to "@grond/..."
+                if (dep.startsWith("@grond/") || dep.startsWith("@worldwideview/")) {
                     if (version === "*") {
                         failedFiles.push(`${file} uses "*" for ${dep}. It MUST use "workspace:*"`);
                     }

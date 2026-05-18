@@ -5,25 +5,34 @@ import {
     SceneMode,
     Cesium3DTileset,
     Cesium3DTileStyle,
-    createOsmBuildingsAsync
+    createOsmBuildingsAsync,
 } from "cesium";
 import { useStore } from "@/core/state/store";
-import { createImageryProvider, createOsmProvider } from "./ImageryProviderFactory";
+import {
+    createImageryProvider,
+    createOsmProvider,
+    isGeeImageryLayerId,
+} from "./ImageryProviderFactory";
+import {
+    ensureGooglePhotorealistic3DTileset,
+    findGooglePhotorealisticTileset,
+    hasGoogleMapsApiKey,
+    resolveGoogle3dRasterFallback,
+} from "./googlePhotorealistic3d";
 
 export function useImageryManager(viewer: CesiumViewer | null, viewerReady: boolean) {
     const baseLayerId = useStore((s) => s.mapConfig.baseLayerId);
     const fallbackLayerId = useStore((s) => s.mapConfig.fallbackLayerId);
     const sceneMode = useStore((s) => s.mapConfig.sceneMode);
     const showOsmBuildings = useStore((s) => s.mapConfig.showOsmBuildings);
+    const maxScreenSpaceError = useStore((s) => s.mapConfig.maxScreenSpaceError);
 
-    // Resolve runtime truth:
     const activeLayerId = fallbackLayerId || baseLayerId;
 
     const currentImageryLayerRef = useRef<ImageryLayer | null>(null);
-    const googleTilesetRef = useRef<Cesium3DTileset | null>(null);
     const osmBuildingsRef = useRef<Cesium3DTileset | null>(null);
+    const googleLoadAttemptRef = useRef(false);
 
-    // 1. Manage Scene Mode (2D / 3D / Columbus)
     useEffect(() => {
         if (!viewer || !viewerReady || viewer.isDestroyed()) return;
 
@@ -38,81 +47,139 @@ export function useImageryManager(viewer: CesiumViewer | null, viewerReady: bool
         }
     }, [viewer, viewerReady, sceneMode]);
 
-    // 2. Manage Imagery Layer and Google 3D Tiles
     useEffect(() => {
         if (!viewer || !viewerReady || viewer.isDestroyed()) return;
 
-        async function updateImagery() {
-            if (!viewer || !viewerReady || viewer.isDestroyed()) return;
+        let cancelled = false;
 
-            // Handle Google 3D Tiles specifically
+        async function updateImagery() {
+            if (!viewer || !viewerReady || viewer.isDestroyed() || cancelled) return;
+
+            const wantsGoogle3D = baseLayerId === "google-3d";
             const isGoogle3D = activeLayerId === "google-3d";
 
-            // Toggle Google 3D Tileset visibility if it exists
-            // Or find it in primitives
-            const {primitives} = viewer.scene;
-            let foundTileset: Cesium3DTileset | null = null;
+            let googleTileset = findGooglePhotorealisticTileset(viewer);
 
-            for (let i = 0; i < primitives.length; i++) {
-                const p = primitives.get(i);
-                // Find the Google tileset — skip any tagged as OSM buildings
-                if (p instanceof Cesium3DTileset && !(p as any)._wwvOsmBuildings) {
-                    foundTileset = p;
-                    break;
+            if (wantsGoogle3D && !googleTileset && !googleLoadAttemptRef.current) {
+                if (!hasGoogleMapsApiKey()) {
+                    const rasterFallback = await resolveGoogle3dRasterFallback();
+                    const { updateMapConfig } = useStore.getState();
+                    updateMapConfig({ fallbackLayerId: rasterFallback });
+                    return;
                 }
-            }
 
-            if (foundTileset) {
-                foundTileset.show = isGoogle3D;
-            }
-
-            // If we are in Google 3D mode, we usually hide the globe surface
-            // to avoid z-fighting or showing low-res imagery underneath
-            viewer.scene.globe.show = !isGoogle3D;
-
-            // Manage standard imagery layer
-            if (isGoogle3D) {
-                // Remove current custom imagery if switching to Google 3D
-                if (currentImageryLayerRef.current) {
-                    viewer.imageryLayers.remove(currentImageryLayerRef.current);
-                    currentImageryLayerRef.current = null;
-                }
-            } else {
-                // Instantiate and Add new imagery provider
+                googleLoadAttemptRef.current = true;
                 try {
-                    const provider = await createImageryProvider(activeLayerId);
-                    const newLayer = new ImageryLayer(provider);
+                    googleTileset = await ensureGooglePhotorealistic3DTileset(
+                        viewer,
+                        maxScreenSpaceError,
+                    );
+                } finally {
+                    googleLoadAttemptRef.current = false;
+                }
+
+                if (cancelled || !viewer || viewer.isDestroyed()) return;
+
+                if (!googleTileset) {
+                    const rasterFallback = await resolveGoogle3dRasterFallback();
+                    useStore.getState().updateMapConfig({ fallbackLayerId: rasterFallback });
+                    return;
+                }
+            }
+
+            googleTileset = findGooglePhotorealisticTileset(viewer);
+            const google3dActive = isGoogle3D && googleTileset !== null;
+
+            if (googleTileset) {
+                googleTileset.show = isGoogle3D;
+            }
+
+            // Only hide the globe ellipsoid when Google 3D tiles are actually present.
+            viewer.scene.globe.show = !google3dActive;
+
+            if (isGoogle3D) {
+                if (google3dActive) {
+                    if (currentImageryLayerRef.current) {
+                        viewer.imageryLayers.remove(currentImageryLayerRef.current);
+                        currentImageryLayerRef.current = null;
+                    }
+                    return;
+                }
+
+                // Google 3D selected but tiles not ready — keep a raster underlay visible.
+                try {
+                    const underlayId = fallbackLayerId ?? "osm";
+                    const provider = underlayId === "osm"
+                        ? createOsmProvider()
+                        : await createImageryProvider(underlayId);
+                    const underlayLayer = new ImageryLayer(provider);
 
                     if (currentImageryLayerRef.current) {
                         viewer.imageryLayers.remove(currentImageryLayerRef.current);
                     }
-
-                    // Add as base layer (bottom)
-                    if (viewer.isDestroyed()) return;
-                    viewer.imageryLayers.add(newLayer, 0);
-                    currentImageryLayerRef.current = newLayer;
+                    if (viewer.isDestroyed() || cancelled) return;
+                    viewer.imageryLayers.add(underlayLayer, 0);
+                    currentImageryLayerRef.current = underlayLayer;
                 } catch (err) {
-                    console.error("[useImageryManager] Failed to load imagery:", activeLayerId, err);
-                    try {
-                        const osmProvider = createOsmProvider();
-                        const osmLayer = new ImageryLayer(osmProvider);
-                        if (viewer.isDestroyed()) return;
-                        viewer.imageryLayers.add(osmLayer, 0);
-                        currentImageryLayerRef.current = osmLayer;
-                        console.warn("[useImageryManager] Loaded OSM as fallback imagery");
-                    } catch (fallbackErr) {
-                        console.error("[useImageryManager] OSM fallback also failed:", fallbackErr);
+                    console.warn("[useImageryManager] Google 3D underlay failed:", err);
+                }
+                return;
+            }
+
+            try {
+                const provider = await createImageryProvider(activeLayerId);
+                const newLayer = new ImageryLayer(provider);
+
+                if (currentImageryLayerRef.current) {
+                    viewer.imageryLayers.remove(currentImageryLayerRef.current);
+                }
+
+                if (viewer.isDestroyed() || cancelled) return;
+                viewer.imageryLayers.add(newLayer, 0);
+                currentImageryLayerRef.current = newLayer;
+            } catch (err) {
+                const geeLayer = isGeeImageryLayerId(activeLayerId);
+                if (geeLayer) {
+                    console.warn(
+                        "[useImageryManager] Earth Engine imagery unavailable, using OSM:",
+                        activeLayerId,
+                        err,
+                    );
+                    const { mapConfig, updateMapConfig } = useStore.getState();
+                    if (isGeeImageryLayerId(mapConfig.baseLayerId)) {
+                        updateMapConfig({ baseLayerId: "osm", fallbackLayerId: null });
+                    } else if (mapConfig.fallbackLayerId) {
+                        updateMapConfig({ fallbackLayerId: null });
                     }
+                } else {
+                    console.error(
+                        "[useImageryManager] Failed to load imagery:",
+                        activeLayerId,
+                        err,
+                    );
+                }
+                try {
+                    const osmProvider = createOsmProvider();
+                    const osmLayer = new ImageryLayer(osmProvider);
+                    if (viewer.isDestroyed() || cancelled) return;
+                    viewer.imageryLayers.add(osmLayer, 0);
+                    currentImageryLayerRef.current = osmLayer;
+                } catch (fallbackErr) {
+                    console.error("[useImageryManager] OSM fallback also failed:", fallbackErr);
                 }
             }
         }
 
         updateImagery();
-    }, [viewer, viewerReady, baseLayerId, fallbackLayerId]);
 
-    // 3. Manage OSM 3D Buildings (only in 3D mode, not with Google Photorealistic tiles)
+        return () => {
+            cancelled = true;
+        };
+    }, [viewer, viewerReady, baseLayerId, fallbackLayerId, activeLayerId, maxScreenSpaceError]);
+
     const isGoogle3D = activeLayerId === "google-3d";
     const is3DMode = sceneMode === 3;
+
     useEffect(() => {
         if (!viewer || !viewerReady || viewer.isDestroyed()) return;
 
@@ -125,7 +192,7 @@ export function useImageryManager(viewer: CesiumViewer | null, viewerReady: bool
                     tileset.destroy();
                     return;
                 }
-                (tileset as any)._wwvOsmBuildings = true;
+                (tileset as Cesium3DTileset & { _grondOsmBuildings?: boolean })._grondOsmBuildings = true;
                 tileset.maximumScreenSpaceError = 16;
                 tileset.style = new Cesium3DTileStyle({
                     color: "color('#E0DDD5')",
@@ -147,6 +214,6 @@ export function useImageryManager(viewer: CesiumViewer | null, viewerReady: bool
     }, [viewer, viewerReady, isGoogle3D, is3DMode, showOsmBuildings]);
 
     return {
-        isGoogle3D
+        isGoogle3D,
     };
 }

@@ -48,7 +48,7 @@ export const osmSurveillanceAdapter: CameraAdapter = {
             method: "POST",
             headers: {
                 "Content-Type": "application/x-www-form-urlencoded",
-                "User-Agent": "WorldWideView/1.0",
+                "User-Agent": "Grond/1.0",
             },
             body: `data=${encodeURIComponent(OVERPASS_QUERY)}`,
         });

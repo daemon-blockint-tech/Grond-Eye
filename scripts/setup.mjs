@@ -49,5 +49,5 @@ content = content
 writeFileSync(TARGET, content, "utf8");
 
 console.log("✅ .env created with a generated AUTH_SECRET.");
-console.log("   Fill in any optional API keys (Cesium, Bing, OpenSky, etc.)");
+console.log("   Fill in any optional API keys (Cesium, Earth Engine, OpenSky, etc.)");
 console.log("   then run: npm run dev");

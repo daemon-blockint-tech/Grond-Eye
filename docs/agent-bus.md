@@ -158,7 +158,16 @@ Once configured, ask the agent something like *"What's the status of the WWV sys
 | `POST` | `/api/agent/publish` | Accept an `AgentAction` JSON body, broadcast to the publishing user's subscribers, return `{ok, delivered, subscribers}`. |
 | `GET` | `/api/build` | Build id + ISO timestamp + `NEXT_PUBLIC_*` flag state. Used by `AgentBusSubscriber` to print the build banner. |
 
-`AgentAction` is currently a six-verb union: `fly_to`, `face_towards`, `layer_toggle`, `highlight_layer`, `select_entity`, `ping`. The shape is `{action: string, …payload}` JSON, so additive changes are backwards-compatible.
+`AgentAction` includes map/ops verbs plus scenario control:
+
+| Action | Handled on server | Browser subscriber |
+|---|---|---|
+| `scenario_start` | Yes — starts case via scenario runner | No (poll `/api/ops/scenarios/state`) |
+| `scenario_stop` | Yes — stops active case | No |
+| `scenario_status` | Yes — returns JSON status only | No |
+| `fly_to`, `layer_toggle`, `sim_filter`, … | Broadcast via SSE | Yes — `AgentBusSubscriber` |
+
+The shape is `{action: string, …payload}` JSON, so additive changes are backwards-compatible.
 
 ## Companion repos
 

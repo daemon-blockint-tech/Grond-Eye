@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { describe, test, expect } from "vitest";
 import fc from "fast-check";
 import { normalizeToGeoJson } from "./normalizer";
@@ -161,6 +162,46 @@ describe("normalizeToGeoJson", () => {
 
   test("throws on unrecognized format", () => {
     expect(() => normalizeToGeoJson({ foo: "bar" })).toThrow("Unrecognized");
+  });
+
+  test("wraps an array of GeoJSON Features", () => {
+    const input = [
+      {
+        type: "Feature",
+        geometry: { type: "Point", coordinates: [10, 20] },
+        properties: { name: "A" },
+      },
+      {
+        type: "Feature",
+        geometry: { type: "Point", coordinates: [11, 21] },
+        properties: { name: "B" },
+      },
+    ];
+    const result = normalizeToGeoJson(input);
+    expect(result.collection.features).toHaveLength(2);
+  });
+
+  test("normalizes public/military_bases.geojson", () => {
+    const raw = readFileSync("public/military_bases.geojson", "utf8");
+    const result = normalizeToGeoJson(raw);
+    expect(result.collection.features.length).toBeGreaterThan(20_000);
+    expect(result.skippedCount).toBe(0);
+    expect(result.geometryTypes).toEqual(["Point"]);
+  });
+
+  test("parses FeatureCollection with BOM prefix", () => {
+    const body = JSON.stringify({
+      type: "FeatureCollection",
+      features: [
+        {
+          type: "Feature",
+          geometry: { type: "Point", coordinates: [0, 0] },
+          properties: {},
+        },
+      ],
+    });
+    const result = normalizeToGeoJson(`\uFEFF${body}`);
+    expect(result.collection.features).toHaveLength(1);
   });
 
   test("handles MultiPolygon geometry", () => {

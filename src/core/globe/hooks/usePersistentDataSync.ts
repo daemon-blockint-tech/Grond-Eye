@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useStore } from "@/core/state/store";
 import { isDemo } from "@/core/edition";
+import { readJsonResponse } from "@/lib/http/readJsonResponse";
 
 export function usePersistentDataSync() {
     const updateMapConfig = useStore((s) => s.updateMapConfig);
@@ -9,7 +10,7 @@ export function usePersistentDataSync() {
     // Load graphics settings from cookie on mount
     useEffect(() => {
         try {
-            const match = document.cookie.match(/(^| )wwv_graphics=([^;]+)/);
+            const match = document.cookie.match(/(^| )grond_graphics=([^;]+)/);
             if (match) {
                 const saved = JSON.parse(decodeURIComponent(match[2]));
                 updateMapConfig(saved);
@@ -23,7 +24,7 @@ export function usePersistentDataSync() {
     useEffect(() => {
         if (isDemo) {
             try {
-                const match = document.cookie.match(/(^| )wwv_favorites=([^;]+)/);
+                const match = document.cookie.match(/(^| )grond_favorites=([^;]+)/);
                 if (match) {
                     const saved = JSON.parse(decodeURIComponent(match[2]));
                     initFavorites(saved);
@@ -33,10 +34,10 @@ export function usePersistentDataSync() {
             }
         } else {
             fetch("/api/user/favorites")
-                .then((res) => {
+                .then(async (res) => {
                     if (res.status === 401) return []; // Unauthenticated, safe to ignore
-                    if (res.ok) return res.json();
-                    throw new Error("Failed to load favorites");
+                    if (!res.ok) throw new Error("Failed to load favorites");
+                    return readJsonResponse<unknown[]>(res);
                 })
                 .then((data) => {
                     if (Array.isArray(data)) {

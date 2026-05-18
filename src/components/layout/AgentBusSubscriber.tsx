@@ -7,7 +7,7 @@
  * already drives off of. Renders nothing — purely a side-effect component,
  * paired with `DataBusSubscriber`.
  *
- * Disabled unless `NEXT_PUBLIC_WWV_AGENT_BUS_ENABLED === "true"` so an
+ * Disabled unless `NEXT_PUBLIC_GROND_AGENT_BUS_ENABLED === "true"` so an
  * unintended deployment doesn't open a remote-control channel for users
  * who didn't opt in.
  */
@@ -15,48 +15,11 @@
 import { useEffect } from "react";
 import { dataBus } from "@/core/data/DataBus";
 import { pluginManager } from "@/core/plugins/PluginManager";
+import { useStore } from "@/core/state/store";
+import { getAgentBusEnabled, getBuildAt, getBuildId } from "@/core/grondEnv";
+import type { AgentAction } from "@/lib/agent/bus";
 
-interface FlyToMessage {
-    action: "fly_to";
-    lat: number;
-    lon: number;
-    alt?: number;
-    heading?: number;
-    distance?: number;
-}
-interface FaceTowardsMessage {
-    action: "face_towards";
-    lat: number;
-    lon: number;
-    alt?: number;
-}
-interface LayerToggleMessage {
-    action: "layer_toggle";
-    pluginId: string;
-    enabled: boolean;
-}
-interface HighlightMessage {
-    action: "highlight_layer";
-    pluginId: string;
-}
-interface SelectEntityMessage {
-    action: "select_entity";
-    pluginId: string;
-    entityId: string;
-}
-interface PingMessage {
-    action: "ping";
-    ts: number;
-}
-type AgentMessage =
-    | FlyToMessage
-    | FaceTowardsMessage
-    | LayerToggleMessage
-    | HighlightMessage
-    | SelectEntityMessage
-    | PingMessage;
-
-function applyAction(msg: AgentMessage): void {
+function applyAction(msg: AgentAction): void {
     switch (msg.action) {
         case "fly_to":
             dataBus.emit("cameraGoTo", {
@@ -88,9 +51,45 @@ function applyAction(msg: AgentMessage): void {
             const entities = pluginManager.getEntities(msg.pluginId);
             const entity = entities.find((e) => e.id === msg.entityId);
             if (entity) dataBus.emit("entitySelected", { entity });
+            return;
         }
+        case "task_created":
+        case "task_updated":
+            useStore.getState().upsertOpsTask({
+                ...msg.task,
+                status: msg.task.status,
+            });
+            return;
+        case "alert_created":
+            useStore.getState().upsertOpsAlert({
+                id: msg.alert.id,
+                severity: msg.alert.severity,
+                title: msg.alert.title,
+                body: msg.alert.body,
+                source: msg.alert.source,
+                entityPluginId: msg.alert.entityPluginId,
+                entityId: msg.alert.entityId,
+                createdAt: msg.alert.createdAt,
+            });
+            return;
+        case "alert_dismissed":
+            useStore.getState().removeOpsAlert(msg.alertId);
+            return;
+        case "authorization_changed":
+            fetch("/api/ops/authorization")
+                .then((r) => (r.ok ? r.json() : null))
+                .then((data) => {
+                    if (data) useStore.getState().setOpsAuthorization(data);
+                })
+                .catch(() => {});
+            return;
+        case "sim_filter":
+            useStore.getState().setOpsSimOnly(msg.enabled);
+            return;
         case "ping":
-            // No-op — useful for an external tool to verify the channel is alive.
+            return;
+        default:
+            return;
     }
 }
 
@@ -99,11 +98,11 @@ export function AgentBusSubscriber() {
         // Log build-id + agent-bus state once on mount. A stale-bundle / config
         // mismatch becomes visible at a glance in the browser console instead
         // of looking like a feature regression.
-        const buildId = process.env.NEXT_PUBLIC_WWV_BUILD_ID ?? "dev";
-        const builtAt = process.env.NEXT_PUBLIC_WWV_BUILD_AT ?? "";
-        const agentBusEnabled = process.env.NEXT_PUBLIC_WWV_AGENT_BUS_ENABLED === "true";
+        const buildId = getBuildId() ?? "dev";
+        const builtAt = getBuildAt() ?? "";
+        const agentBusEnabled = getAgentBusEnabled();
         console.log(
-            `[wwv build] id=${buildId} built_at=${builtAt} agent_bus=${agentBusEnabled ? "on" : "off"}`,
+            `[grond build] id=${buildId} built_at=${builtAt} agent_bus=${agentBusEnabled ? "on" : "off"}`,
         );
 
         if (!agentBusEnabled) return;
@@ -112,7 +111,7 @@ export function AgentBusSubscriber() {
         const es = new EventSource("/api/agent/stream", { withCredentials: true });
         es.onmessage = (event) => {
             try {
-                const msg = JSON.parse(event.data) as AgentMessage;
+                const msg = JSON.parse(event.data) as AgentAction;
                 applyAction(msg);
             } catch (err) {
                 console.warn("[AgentBus] malformed message", err);

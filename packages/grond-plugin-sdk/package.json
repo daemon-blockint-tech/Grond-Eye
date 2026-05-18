@@ -1,0 +1,50 @@
+{
+  "name": "@grond/plugin-sdk",
+  "version": "1.7.3",
+  "description": "Plugin SDK — types, interfaces, and utilities for building Grond globe plugins",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./vite": {
+      "types": "./dist/vite.d.ts",
+      "default": "./dist/vite.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc --project tsconfig.build.json",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [
+    "grond",
+    "grond-plugin-sdk",
+    "globe",
+    "cesium",
+    "plugin-sdk",
+    "geospatial"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/silvertakana/grond.git",
+    "directory": "packages/grond-plugin-sdk"
+  },
+  "homepage": "https://github.com/silvertakana/grond#readme",
+  "bugs": {
+    "url": "https://github.com/silvertakana/grond/issues"
+  },
+  "license": "ISC",
+  "author": "Grond",
+  "peerDependencies": {
+    "react": ">=18"
+  },
+  "devDependencies": {
+    "typescript": "^5",
+    "@types/react": "^19"
+  }
+}

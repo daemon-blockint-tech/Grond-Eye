@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import * as client from "openid-client";
+import { getMarketplaceUrl } from "@/core/grondEnv";
 
 export async function GET(req: NextRequest) {
     const state = client.randomState();
     const code_verifier = client.randomPKCECodeVerifier();
     const code_challenge = await client.calculatePKCECodeChallenge(code_verifier);
 
-    const marketplaceUrl = process.env.NEXT_PUBLIC_WWV_MARKETPLACE_URL || "https://app.worldwideview.dev";
+    const marketplaceUrl = getMarketplaceUrl() || "https://app.worldwideview.dev";
 
     const url = new URL("/oauth/authorize", marketplaceUrl);
     url.searchParams.set("client_id", "local-app");

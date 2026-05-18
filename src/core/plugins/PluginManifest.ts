@@ -1,9 +1,9 @@
 /**
- * Re-exports manifest-related types from the WorldWideView Plugin SDK.
+ * Re-exports manifest-related types from the Grond Plugin SDK.
  * This file allows the application to reference plugin manifest structures
  * while keeping the SDK as the authoritative source of truth.
  */
-// Source of truth for manifest types is now @worldwideview/wwv-plugin-sdk.
+// Source of truth for manifest types is now @grond/plugin-sdk.
 export type {
     PluginFormat,
     PluginType,
@@ -13,4 +13,4 @@ export type {
     FieldMapping,
     RenderingConfig,
     PluginManifest,
-} from "@worldwideview/wwv-plugin-sdk";
+} from "@grond/plugin-sdk";

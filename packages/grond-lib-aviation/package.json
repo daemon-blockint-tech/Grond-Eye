@@ -1,0 +1,21 @@
+{
+  "name": "@grond/lib-aviation",
+  "version": "1.0.3",
+  "description": "Shared abstract base classes for Grond aviation plugins (commercial, military, specialized)",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "files": [
+    "src"
+  ],
+  "keywords": [
+    "grond",
+    "aviation",
+    "aircraft",
+    "base-plugin"
+  ],
+  "author": "Grond",
+  "license": "ISC",
+  "peerDependencies": {
+    "@grond/plugin-sdk": "workspace:*"
+  }
+}

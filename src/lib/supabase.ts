@@ -1,5 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 
+import { resolveSupabaseConfig } from "./supabase-config";
+
 let client: ReturnType<typeof createClient> | null = null;
 
 /**
@@ -9,12 +11,10 @@ let client: ReturnType<typeof createClient> | null = null;
 export function getSupabaseClient() {
     if (client) return client;
 
-    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    const config = resolveSupabaseConfig();
+    if (!config?.url || !config.serviceRoleKey) return null;
 
-    if (!url || !key) return null;
-
-    client = createClient(url, key, {
+    client = createClient(config.url, config.serviceRoleKey, {
         auth: { persistSession: false },
     });
     return client;

@@ -8,18 +8,19 @@ import {
 import type { Viewer as CesiumViewer, Cartesian2 } from "cesium";
 import type { GeoEntity } from "@/core/plugins/PluginTypes";
 import { useStore } from "@/core/state/store";
+import { flyToEntity } from "@/core/globe/flyToEntity";
 import {
     findStackByEntityId, expandStack, collapseStack, getStacks
 } from "./StackManager";
 
 /**
- * Pick a WorldWideView entity at a screen position using the Cesium pick API.
+ * Pick a Grond entity at a screen position using the Cesium pick API.
  */
 function findEntityAtPosition(viewer: CesiumViewer, position: { x: number; y: number }): GeoEntity | null {
     if (!viewer || viewer.isDestroyed()) return null;
     const picked = viewer.scene.pick(position as Cartesian2);
-    if (defined(picked) && picked.id && picked.id._wwvEntity) {
-        return picked.id._wwvEntity as GeoEntity;
+    if (defined(picked) && picked.id && picked.id._grondEntity) {
+        return picked.id._grondEntity as GeoEntity;
     }
     return null;
 }
@@ -66,6 +67,14 @@ export function setupInteractionHandlers(
                 } else {
                     // Clicked a standalone entity -> select it and close any open stack
                     useStore.getState().setSelectedEntity(entity);
+                    useStore.getState().pushRecentEntityRef({
+                        pluginId: entity.pluginId,
+                        entityId: entity.id,
+                        label: entity.label,
+                    });
+                    if (typeof document !== "undefined" && document.querySelector("[data-layout=\"ops\"]")) {
+                        flyToEntity(entity);
+                    }
                     if (expandedStackId) {
                         collapseStack(expandedStackId);
                         expandedStackId = null;

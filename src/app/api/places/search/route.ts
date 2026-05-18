@@ -18,7 +18,10 @@ export async function GET(request: Request) {
     const apiKey = isValidUserKey ? userKey : process.env.GOOGLE_MAPS_API_KEY;
     if (!apiKey) {
         console.error("GOOGLE_MAPS_API_KEY is not defined and no user key provided");
-        return NextResponse.json({ error: "Server configuration error" }, { status: 500 });
+        return NextResponse.json(
+            { error: "places_unconfigured", predictions: [] },
+            { status: 503 }
+        );
     }
 
     // Separate cache entries for user-provided keys vs default

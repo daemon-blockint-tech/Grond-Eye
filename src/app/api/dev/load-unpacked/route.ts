@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
 import { validateManifest } from "@/core/plugins/validateManifest";
-import { parseWwvManifest } from "@/core/plugins/parseWwvManifest";
+import { parseGrondManifest } from "@/core/plugins/parseGrondManifest";
 
 export async function OPTIONS() {
-    // Allows the WWV CLI (running on a different port) to hit this endpoint
+    // Allows the Grond CLI (running on a different port) to hit this endpoint
     return new NextResponse(null, {
         status: 204,
         headers: {
@@ -31,8 +31,8 @@ export async function POST(request: Request) {
     try {
         const body = await request.json();
 
-        // Convert wwv-manifest.json format to PluginManifest format
-        const manifest = parseWwvManifest(body);
+        // Convert grond-manifest.json format to PluginManifest format
+        const manifest = parseGrondManifest(body);
 
         // Dev-loaded plugins are unverified by default
         manifest.trust = "unverified";

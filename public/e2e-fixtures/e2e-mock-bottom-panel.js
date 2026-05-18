@@ -5,7 +5,7 @@ export default {
     id: "e2e-mock-bottom-panel",
     name: "E2E Bottom Panel Mock",
     description: "A mock plugin for Bottom Panel E2E testing.",
-    icon: "data:image/svg+xml;base64,PHN2Zz48L3N2Zz4=", // Empty SVG as fallback
+    icon: "Package",
     category: "custom",
     version: "1.0.0",
     

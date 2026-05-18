@@ -69,7 +69,7 @@ export async function fetchGdotCameras(): Promise<GdotCameraFeature[]> {
         });
 
         const res = await fetch(`${GDOT_BASE}?${params}`, {
-            headers: { "User-Agent": "WorldWideView/1.0" },
+            headers: { "User-Agent": "Grond/1.0" },
         });
 
         if (!res.ok) throw new Error(`GDOT API returned ${res.status}`);
