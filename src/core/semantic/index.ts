@@ -1,11 +1,14 @@
 /**
  * @file src/core/semantic/index.ts
- * @description Main exports for the semantic layer.
- * Provides access to classifications, relationships, queries, and ontological reasoning.
+ * @description Main exports for the semantic layer (Phases 1-3).
+ * Provides access to classifications, queries, and agent reasoning.
  */
 
+// Phase 1: Data Layer
 export { SemanticStore, getGlobalSemanticStore, resetGlobalSemanticStore } from './semanticStore';
 export { OntologyGraph } from './ontologyGraph';
+
+// Phase 2: Query Engine
 export { SemanticQueryEngine } from './queryEngine';
 export type {
   FindByTypeQuery,
@@ -21,3 +24,14 @@ export type {
   ContextAggregationResult,
   PathFindingResult,
 } from './queryTypes';
+
+// Phase 3: Agent Reasoning
+export { SemanticAgent } from './agentReasoning';
+export { ThreatInferenceEngine } from './threatInference';
+export { AgentContext, getAgentContext, clearAgentContext } from './agentContext';
+export type {
+  ThreatIntelligence,
+  DecisionRationale,
+  RationalizedAction,
+  AgentGoal,
+} from './agentContext';
