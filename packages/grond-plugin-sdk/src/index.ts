@@ -314,3 +314,18 @@ export { grondPluginGlobals } from "./viteGlobals";
 
 // ─── Auth Contracts ──────────────────────────────────────────
 export * from "./auth-contracts";
+
+// ─── Semantic Layer (Entity Classification & Ontology) ────────
+export type {
+  EntityType,
+  EntityDomain,
+  Disposition,
+  Confidence,
+  EntityClassification,
+  SemanticProperty,
+  EntityProvenance,
+  SemanticEntity,
+  RelationshipType,
+  SemanticRelationship,
+  EntityContext,
+} from "./semantic";
