@@ -2,10 +2,15 @@
  * @file PlaybookEngine.ts
  * @description Mission automation and playbook execution engine.
  * Orchestrates multi-step automated responses and workflows.
+ * Enhanced with Mission Autonomy capabilities: Intent-to-Task, Sensor Fusion, Resource Management, Dynamic Planning.
  */
 
 import { PrismaClient } from '@prisma/client';
 import { C2CommandExecutor } from './C2CommandExecutor';
+import { IntentToTaskBreakdown, TaskObjective, DecomposedTask } from './IntentToTaskBreakdown';
+import { SensorFusion, SensorData, FusedThreatSignal } from './SensorFusion';
+import { ResourceManager, ExecutionSchedule } from './ResourceManager';
+import { DynamicPlanningEngine } from './DynamicPlanningEngine';
 
 export interface PlaybookAction {
   id: string;
@@ -92,11 +97,102 @@ export class PlaybookEngine {
   private executions: Map<string, MissionExecution> = new Map();
   private automationRules: Map<string, AutomationRule> = new Map();
   private tenantId?: string;
+  private intentToTaskBreakdown: IntentToTaskBreakdown;
+  private sensorFusion: SensorFusion;
+  private resourceManager: ResourceManager;
+  private dynamicPlanningEngine: DynamicPlanningEngine;
+  private decomposedTasks: Map<string, DecomposedTask> = new Map();
 
   constructor(db: PrismaClient, commandExecutor: C2CommandExecutor, tenantId?: string) {
     this.db = db;
     this.commandExecutor = commandExecutor;
     this.tenantId = tenantId;
+    this.intentToTaskBreakdown = new IntentToTaskBreakdown(this);
+    this.sensorFusion = new SensorFusion();
+    this.resourceManager = new ResourceManager();
+    this.dynamicPlanningEngine = new DynamicPlanningEngine();
+  }
+
+  /**
+   * MISSION AUTONOMY: Decompose operator intent into executable tasks.
+   */
+  async decomposeIntentToTask(objective: TaskObjective): Promise<DecomposedTask> {
+    const task = await this.intentToTaskBreakdown.decomposeIntent(objective);
+    this.decomposedTasks.set(task.id, task);
+    return task;
+  }
+
+  /**
+   * MISSION AUTONOMY: Get decomposed task details.
+   */
+  getDecomposedTask(taskId: string): DecomposedTask | undefined {
+    return this.decomposedTasks.get(taskId);
+  }
+
+  /**
+   * MISSION AUTONOMY: Ingest sensor data from multiple sources.
+   */
+  addSensorData(data: SensorData): void {
+    this.sensorFusion.addSensorData(data);
+  }
+
+  /**
+   * MISSION AUTONOMY: Fuse threat signals from all sensor sources.
+   */
+  fuseThreatSignal(entityId: string): FusedThreatSignal {
+    return this.sensorFusion.fuseThreatSignals(entityId);
+  }
+
+  /**
+   * MISSION AUTONOMY: Schedule execution with resource management and conflict resolution.
+   */
+  scheduleExecution(schedule: ExecutionSchedule): boolean {
+    return this.resourceManager.scheduleExecution(schedule);
+  }
+
+  /**
+   * MISSION AUTONOMY: Allocate resources for playbook execution.
+   */
+  allocateResources(executionId: string, entityId: string, required: Record<string, number>) {
+    return this.resourceManager.allocateResources(executionId, entityId, required);
+  }
+
+  /**
+   * MISSION AUTONOMY: Evaluate threat signal and adapt execution plan dynamically.
+   */
+  evaluateThreatAndAdapt(
+    executionId: string,
+    entityId: string,
+    threatSignal: FusedThreatSignal,
+    context: Partial<Parameters<typeof this.dynamicPlanningEngine.evaluateThreat>[3]>,
+  ) {
+    return this.dynamicPlanningEngine.evaluateThreat(
+      executionId,
+      entityId,
+      threatSignal,
+      context,
+    );
+  }
+
+  /**
+   * MISSION AUTONOMY: Get sensor health status.
+   */
+  getSensorHealth() {
+    return this.sensorFusion.getSensorHealth();
+  }
+
+  /**
+   * MISSION AUTONOMY: Get resource utilization.
+   */
+  getResourceUtilization() {
+    return this.resourceManager.getResourceUtilization();
+  }
+
+  /**
+   * MISSION AUTONOMY: Get adaptation history for execution.
+   */
+  getAdaptationHistory(executionId: string) {
+    return this.dynamicPlanningEngine.getAdaptationHistory(executionId);
   }
 
   /**
@@ -183,24 +279,69 @@ export class PlaybookEngine {
 
     this.executions.set(executionId, execution);
 
-    // Execute playbook asynchronously
-    this.executeActions(execution, playbook.actions, entityId).catch((error) => {
+    // Try to allocate resources with dynamic scheduling
+    const resourceRequirements = this.estimateResourceRequirements(playbook);
+    const allocation = this.resourceManager.allocateResources(executionId, entityId, resourceRequirements);
+
+    if (allocation) {
+      this.logToExecution(execution, 'info', `Resources allocated: ${allocation.allocationId}`);
+    } else {
+      this.logToExecution(execution, 'warn', 'Insufficient resources - executing with degraded capacity');
+    }
+
+    // Execute playbook asynchronously with dynamic adaptation support
+    this.executeActions(execution, playbook.actions, entityId, executionId).catch((error) => {
       this.logToExecution(execution, 'error', `Playbook execution failed: ${error.message}`);
       execution.status = 'failed';
       execution.endTime = Date.now();
       execution.duration = execution.endTime - execution.startTime;
+
+      if (allocation) {
+        this.resourceManager.releaseResources(allocation.allocationId);
+      }
     });
 
     return execution;
   }
 
   /**
-   * Execute playbook actions recursively.
+   * Estimate resource requirements for a playbook.
+   */
+  private estimateResourceRequirements(playbook: Playbook): Record<string, number> {
+    const requirements: Record<string, number> = { compute: 1, network: 1 };
+
+    const hasHeavyCompute = playbook.actions.some((a) =>
+      a.type === 'command' && a.commandId?.includes('scan'),
+    );
+    if (hasHeavyCompute) {
+      requirements.compute = 3;
+    }
+
+    const hasNetworkOps = playbook.actions.some((a) =>
+      a.type === 'command' && (a.commandId?.includes('isolate') || a.commandId?.includes('block')),
+    );
+    if (hasNetworkOps) {
+      requirements.network = 2;
+    }
+
+    const hasStorage = playbook.actions.some((a) =>
+      a.type === 'command' && a.commandId?.includes('collect'),
+    );
+    if (hasStorage) {
+      requirements.storage = 100;
+    }
+
+    return requirements;
+  }
+
+  /**
+   * Execute playbook actions recursively with dynamic adaptation support.
    */
   private async executeActions(
     execution: MissionExecution,
     actions: PlaybookAction[],
     entityId: string,
+    executionId?: string,
   ): Promise<void> {
     execution.status = 'running';
 
@@ -230,7 +371,7 @@ export class PlaybookEngine {
             break;
 
           case 'parallel':
-            await this.executeParallelActions(action, entityId, execution);
+            await this.executeParallelActions(action, entityId, execution, executionId);
             break;
 
           default:
@@ -250,7 +391,6 @@ export class PlaybookEngine {
           break;
         } else if (action.onError === 'retry' && action.retries && action.retries > 0) {
           action.retries--;
-          // Retry this action
           continue;
         }
       }
@@ -346,6 +486,7 @@ export class PlaybookEngine {
     action: PlaybookAction,
     entityId: string,
     execution: MissionExecution,
+    executionId?: string,
   ): Promise<void> {
     if (!action.parallelActions || action.parallelActions.length === 0) {
       throw new Error('Parallel actions required');
@@ -353,9 +494,8 @@ export class PlaybookEngine {
 
     this.logToExecution(execution, 'info', `Executing ${action.parallelActions.length} actions in parallel`);
 
-    // Execute all parallel actions concurrently
     await Promise.all(action.parallelActions.map((parallelAction) =>
-      this.executeActions(execution, [parallelAction], entityId),
+      this.executeActions(execution, [parallelAction], entityId, executionId),
     ));
   }
 
@@ -545,5 +685,34 @@ export class PlaybookEngine {
       successfulExecutions: executions.filter((e) => e.status === 'success').length,
       failedExecutions: executions.filter((e) => e.status === 'failed').length,
     };
+  }
+
+  /**
+   * MISSION AUTONOMY: Get comprehensive mission autonomy dashboard data.
+   */
+  getMissionAutonomyStatus() {
+    return {
+      resourceUtilization: this.resourceManager.getResourceUtilization(),
+      sensorHealth: this.sensorFusion.getSensorHealth(),
+      pendingExecutions: this.resourceManager.getPendingExecutions(),
+      runningExecutions: this.resourceManager.getRunningExecutions(),
+      adaptationStats: this.dynamicPlanningEngine.getAdaptationStats(),
+      decomposedTasksCount: this.decomposedTasks.size,
+    };
+  }
+
+  /**
+   * MISSION AUTONOMY: Execute mission from intent.
+   */
+  async executeMissionFromIntent(objective: TaskObjective, entityId: string): Promise<DecomposedTask> {
+    const task = await this.decomposeIntentToTask(objective);
+
+    if (task.proposedPlaybooks.length > 0) {
+      const bestPlaybook = task.proposedPlaybooks[0];
+      await this.executePlaybook(bestPlaybook.playbookId, entityId);
+      this.logAutomation(`Executed mission from intent: ${objective.intent}`);
+    }
+
+    return task;
   }
 }
