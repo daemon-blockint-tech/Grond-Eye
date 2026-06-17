@@ -297,3 +297,72 @@ model EntityThreatAssessment {
   @@index([tenantId, entityPluginId, entityId])
   @@map("entity_threat_assessments")
 }
+
+/**
+ * Entity fusion: track merged/deduplicated entities across sources.
+ * Records which entities were fused into a canonical entity.
+ */
+model EntityFusion {
+  id                  String          @id @default(uuid())
+  tenantId            String?
+
+  // Canonical entity (the survivor after merge)
+  canonicalPluginId   String
+  canonicalEntityId   String
+
+  // Fused-from entities (JSON arrays of plugin/entity IDs)
+  fusedPluginIds      String          // JSON array
+  fusedEntityIds      String          // JSON array
+
+  // Merge metadata
+  fusionScore         Float           // 0-1 confidence of merge
+  fusionReasons       String?         // JSON array: ["spatial_proximity", "semantic_name"]
+  fusionStrategy      String?         // which deduplication strategy was used?
+
+  // Human validation
+  validatedBy         String?         // userId of approver
+  validatedAt         DateTime?
+  validationNotes     String?
+
+  // Immutable audit trail
+  createdAt           DateTime        @default(now())
+  updatedAt           DateTime        @updatedAt
+
+  fusionEvents        FusionEvent[]
+
+  @@unique([tenantId, canonicalPluginId, canonicalEntityId])
+  @@index([tenantId, validatedAt])
+  @@index([tenantId, fusionScore])
+  @@map("entity_fusions")
+}
+
+/**
+ * Fusion events: audit trail of merge decisions and status changes.
+ * Immutable log for compliance and troubleshooting.
+ */
+model FusionEvent {
+  id                String        @id @default(uuid())
+  tenantId          String?
+
+  // Link to fusion
+  fusionId          String
+  fusion            EntityFusion  @relation(fields: [fusionId], references: [id], onDelete: Cascade)
+
+  // Event details
+  eventType         String        // "merge_proposed", "merge_accepted", "merge_rejected", "merge_rolled_back"
+  proposedAt        DateTime      @default(now())
+  confidence        Float?        // confidence score at proposal time
+  reasoning         String?       // JSON reasoning snapshot
+
+  // User action (if any)
+  actorUserId       String?
+  actorAction       String?       // "accepted", "rejected", "reviewed"
+  actorNotes        String?
+
+  createdAt         DateTime      @default(now())
+
+  @@index([tenantId, fusionId])
+  @@index([tenantId, eventType])
+  @@index([tenantId, proposedAt])
+  @@map("fusion_events")
+}
