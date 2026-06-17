@@ -106,7 +106,7 @@ export class TacticalMapManager {
 
     if (existing) {
       existing.trackHistory.push(track.currentLocation);
-      if (existing.trackHistory.length > 1000) {
+      while (existing.trackHistory.length > 1000) {
         existing.trackHistory.shift();
       }
       Object.assign(existing, track);

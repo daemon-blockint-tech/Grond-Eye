@@ -197,7 +197,14 @@ export class MissionPlanningWorkflow {
       .map((id) => this.constraintLibrary.get(id))
       .filter((c) => c !== undefined) as MissionConstraint[];
 
-    const estimatedDuration = objectives.reduce((sum, obj) => sum + (obj.deadline ? 3600 : 0), 0);
+    const now = Date.now();
+    const estimatedDuration = objectives.reduce((sum, obj) => {
+      if (!obj.deadline) return sum;
+      const objDuration = typeof obj.deadline === 'number'
+        ? Math.max(0, obj.deadline - now)
+        : 3600;
+      return sum + objDuration;
+    }, 0);
 
     const plan: MissionPlan = {
       planId,

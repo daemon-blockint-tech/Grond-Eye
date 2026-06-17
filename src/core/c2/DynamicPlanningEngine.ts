@@ -99,7 +99,9 @@ export class DynamicPlanningEngine {
   ): ExecutionAdaptation | null {
     const adaptationId = `adapt-${Date.now()}`;
     const threatDelta = context.currentThreatLevel - context.initialThreatLevel;
-    const highRiskIndicators = threatSignal.indicators.filter((i) => i.severity > 70).length;
+    const highRiskIndicators = threatSignal.indicators.length > 0
+      ? threatSignal.indicators.filter((i) => i.severity > 70).length
+      : 0;
 
     if (context.threatTrend === 'increasing' && context.threatVelocity > 1) {
       if (context.currentThreatLevel > 80) {
@@ -245,7 +247,7 @@ export class DynamicPlanningEngine {
           originalPlan: [],
           adaptedPlan: [],
           timestamp: Date.now(),
-          confidence: Math.max(0, 1 - Math.abs(currentVelocity) / 10),
+          confidence: Math.min(1, Math.max(0.1, 1 - Math.abs(currentVelocity) / 20)),
         };
       }
     }
