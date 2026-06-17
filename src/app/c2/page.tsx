@@ -1,4 +1,4 @@
-import { C2Dashboard } from '@/components/c2/C2Dashboard';
+import { LatticeC2Dashboard } from '@/components/c2/LatticeC2Dashboard';
 
 export const metadata = {
   title: 'C2 Command & Control | Grond-Eye',
@@ -6,5 +6,5 @@ export const metadata = {
 };
 
 export default function C2Page() {
-  return <C2Dashboard />;
+  return <LatticeC2Dashboard />;
 }
