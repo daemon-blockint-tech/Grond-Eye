@@ -1,6 +1,6 @@
 {
 	"name": "grond",
-	"version": "2.23.0",
+	"version": "2.25.0",
 	"private": true,
 	"type": "module",
 	"packageManager": "pnpm@9.15.4",
