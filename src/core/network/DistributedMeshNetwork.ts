@@ -222,7 +222,7 @@ export class DistributedMeshNetwork {
         else if (link.targetNodeId === current) neighbor = link.sourceNodeId;
 
         if (neighbor && unvisited.has(neighbor)) {
-          const cost = 1 / link.qualityScore;
+          const cost = link.qualityScore > 0 ? 1 / link.qualityScore : 1000;
           const newDist = (distances.get(current) || 0) + cost;
 
           if (newDist < (distances.get(neighbor) || Infinity)) {
@@ -241,7 +241,10 @@ export class DistributedMeshNetwork {
       current = previous.get(current);
     }
 
-    return route.length > 1 && route[0] === start ? route : [start, end];
+    if (route.length > 1 && route[0] === start && route[route.length - 1] === end) {
+      return route;
+    }
+    return distances.has(end) ? route : [];
   }
 
   private clearRouteCache(): void {

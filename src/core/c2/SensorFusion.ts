@@ -225,8 +225,8 @@ export class SensorFusion {
     const indicatorDiversity = Math.min(1, indicators.length / 5);
     const temporalConvergence = this.getTemporalConvergence(indicators);
 
-    return (avgSeverity * 0.5 + indicatorDiversity * 100 * 0.3 + temporalConvergence * 100 * 0.2) /
-      100;
+    const threatScore = (avgSeverity * 0.5 + indicatorDiversity * 100 * 0.3 + temporalConvergence * 0.2) / 100;
+    return Math.min(1, Math.max(0, threatScore));
   }
 
   private getTemporalConvergence(indicators: ThreatIndicator[]): number {

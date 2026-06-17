@@ -149,9 +149,8 @@ export class ResourceManager {
       reason = 'Existing critical execution takes precedence';
     } else {
       resolutionStrategy = 'queuing';
-      const maxScheduledTime = Math.max(
-        ...conflicts.map((c) => c.scheduledTime + c.estimatedDuration),
-      );
+      const conflictTimes = conflicts.map((c) => c.scheduledTime + c.estimatedDuration);
+      const maxScheduledTime = conflictTimes.length > 0 ? Math.max(...conflictTimes) : newSchedule.scheduledTime;
       newSchedule.scheduledTime = maxScheduledTime + 1000;
       selectedExecution = newSchedule.executionId;
       reason = 'New execution queued after existing executions';
