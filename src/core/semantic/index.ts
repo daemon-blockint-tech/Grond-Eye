@@ -35,3 +35,7 @@ export type {
   RationalizedAction,
   AgentGoal,
 } from './agentContext';
+
+// Phase 3+: LLM Integration (OpenRouter Deepseek V4 flash)
+export { LLMSemanticAgent } from './llmAgent';
+export { LLMThreatInferenceEngine } from './llmThreatInference';
