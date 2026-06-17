@@ -207,6 +207,18 @@ export class AnomalyDetectionEngine {
    * Record entity behavior observation.
    */
   recordBehavior(behavior: EntityBehavior): void {
+    // Validate behavior.features schema
+    const requiredFeatures = ['speed', 'acceleration', 'heading', 'headingChange', 'proximity', 'activityLevel', 'deviceAnomalyCount'];
+    for (const feature of requiredFeatures) {
+      if (!(feature in behavior.features)) {
+        throw new Error(`Missing required feature: ${feature}`);
+      }
+      const value = behavior.features[feature as keyof typeof behavior.features];
+      if (typeof value !== 'number') {
+        throw new Error(`Feature ${feature} must be a number, got ${typeof value}`);
+      }
+    }
+
     this.behaviorHistory.push(behavior);
 
     if (this.behaviorHistory.length > this.maxHistorySize) {
@@ -320,9 +332,9 @@ export class AnomalyDetectionEngine {
       const newMean = oldMean * (1 - alpha) + value * alpha;
       baseline.mean[featureName] = newMean;
 
-      // Update standard deviation
+      // Update standard deviation (using old mean for deviation calculation)
       const oldStdDev = baseline.stdDev[featureName] ?? 0.1;
-      const variance = Math.pow(value - newMean, 2);
+      const variance = Math.pow(value - oldMean, 2);
       const newVariance = Math.pow(oldStdDev, 2) * (1 - alpha) + variance * alpha;
       baseline.stdDev[featureName] = Math.sqrt(newVariance);
     }

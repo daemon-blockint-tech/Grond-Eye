@@ -4,7 +4,9 @@
  * Intelligently routes, enriches, and aggregates alerts across the system.
  */
 
+import { PrismaClient } from '@prisma/client';
 import { SemanticStore } from '@/core/semantic/semanticStore';
+import { levenshteinDistance } from '@/lib/utils/stringDistance';
 
 export interface AlertInput {
   id: string;
@@ -53,18 +55,19 @@ export interface AlertRoute {
  */
 export class AlertOrchestrator {
   private store: SemanticStore;
-  private activeAlerts: Map<string, Alert> = new Map();
-  private alertHistory: Alert[] = [];
+  private db: PrismaClient;
   private deduplicationConfig: AlertDeduplicationConfig = {
     timeWindow: 300000, // 5 minutes
     entityProximity: 10, // km
     similarityThreshold: 0.75,
   };
   private routes: AlertRoute[] = [];
-  private maxAlerts = 10000;
+  private tenantId?: string;
 
-  constructor(store: SemanticStore) {
+  constructor(store: SemanticStore, db: PrismaClient, tenantId?: string) {
     this.store = store;
+    this.db = db;
+    this.tenantId = tenantId;
     this.initializeRoutes();
   }
 
@@ -101,21 +104,35 @@ export class AlertOrchestrator {
    * Process incoming alert (with deduplication).
    */
   async ingestAlert(input: AlertInput): Promise<Alert> {
+    // Validate severity enum
+    const validSeverities = ['low', 'medium', 'high', 'critical'];
+    if (!validSeverities.includes(input.severity)) {
+      throw new Error(`Invalid severity level: ${input.severity}. Must be one of: ${validSeverities.join(', ')}`);
+    }
+
     // Check for duplicate/similar alerts
-    const duplicate = this.findDuplicate(input);
+    const duplicate = await this.findDuplicate(input);
 
     if (duplicate) {
       // Merge with existing alert
-      duplicate.sourceAlertIds.push(input.id);
-      duplicate.aggregatedCount++;
-      duplicate.lastSeen = input.timestamp;
-      duplicate.escalationLevel = Math.min(3, duplicate.escalationLevel + 0.1);
+      const sourceIds = JSON.parse(duplicate.sourceAlertIds);
+      sourceIds.push(input.id);
 
-      return duplicate;
+      const updated = await this.db.alert.update({
+        where: { id: duplicate.id },
+        data: {
+          sourceAlertIds: JSON.stringify(sourceIds),
+          aggregatedCount: duplicate.aggregatedCount + 1,
+          lastSeen: new Date(input.timestamp),
+          escalationLevel: Math.min(3, duplicate.escalationLevel + 0.1),
+        },
+      });
+
+      return this.dbAlertToModel(updated);
     }
 
     // Create new alert
-    const alert: Alert = {
+    const alertModel: Alert = {
       id: `alert-${Date.now()}-${Math.random().toString(36).slice(2)}`,
       sourceAlertIds: [input.id],
       aggregatedCount: 1,
@@ -133,41 +150,98 @@ export class AlertOrchestrator {
     };
 
     // Enrich alert with semantic context
-    await this.enrichAlert(alert);
-
-    // Determine routing
-    alert.routes = this.determineRoutes(alert);
-
-    // Store alert
-    this.activeAlerts.set(alert.id, alert);
-    this.alertHistory.push(alert);
-
-    if (this.alertHistory.length > this.maxAlerts) {
-      const old = this.alertHistory.shift();
-      if (old) {
-        this.activeAlerts.delete(old.id);
-      }
+    try {
+      await this.enrichAlert(alertModel);
+    } catch (error) {
+      console.error(`Failed to enrich alert ${alertModel.id}:`, error);
+      // Continue without enrichment rather than failing the entire alert ingestion
     }
 
-    return alert;
+    // Determine routing
+    alertModel.routes = this.determineRoutes(alertModel);
+
+    // Store alert in database
+    const dbAlert = await this.db.alert.create({
+      data: {
+        id: alertModel.id,
+        tenantId: this.tenantId,
+        sourceAlertIds: JSON.stringify(alertModel.sourceAlertIds),
+        aggregatedCount: alertModel.aggregatedCount,
+        type: alertModel.type,
+        severity: alertModel.severity,
+        title: alertModel.title,
+        description: alertModel.description,
+        sourcePluginId: input.sourcePluginId,
+        entityId: alertModel.entityId,
+        enrichedContext: JSON.stringify(alertModel.enrichedContext),
+        status: alertModel.status,
+        escalationLevel: alertModel.escalationLevel,
+        routes: JSON.stringify(alertModel.routes),
+        createdAt: new Date(alertModel.createdAt),
+        lastSeen: new Date(alertModel.lastSeen),
+      },
+    });
+
+    // Record creation event
+    await this.db.alertEvent.create({
+      data: {
+        tenantId: this.tenantId,
+        alertId: dbAlert.id,
+        eventType: 'created',
+      },
+    });
+
+    return this.dbAlertToModel(dbAlert);
+  }
+
+  /**
+   * Convert database alert to model.
+   */
+  private dbAlertToModel(dbAlert: any): Alert {
+    return {
+      id: dbAlert.id,
+      sourceAlertIds: JSON.parse(dbAlert.sourceAlertIds),
+      aggregatedCount: dbAlert.aggregatedCount,
+      type: dbAlert.type,
+      severity: dbAlert.severity,
+      title: dbAlert.title,
+      description: dbAlert.description,
+      entityId: dbAlert.entityId,
+      enrichedContext: JSON.parse(dbAlert.enrichedContext),
+      createdAt: dbAlert.createdAt.getTime(),
+      lastSeen: dbAlert.lastSeen.getTime(),
+      status: dbAlert.status as 'active' | 'escalated' | 'suppressed' | 'resolved',
+      escalationLevel: dbAlert.escalationLevel,
+      routes: JSON.parse(dbAlert.routes),
+    };
   }
 
   /**
    * Find duplicate or similar alert within time window.
    */
-  private findDuplicate(input: AlertInput): Alert | null {
-    const timeWindowStart = input.timestamp - this.deduplicationConfig.timeWindow;
+  private async findDuplicate(input: AlertInput): Promise<any | null> {
+    const timeWindowStart = new Date(input.timestamp - this.deduplicationConfig.timeWindow);
 
-    for (const alert of this.activeAlerts.values()) {
-      // Skip if alert is too old
-      if (alert.lastSeen < timeWindowStart) continue;
+    // Query active alerts within time window
+    const candidates = await this.db.alert.findMany({
+      where: {
+        tenantId: this.tenantId,
+        status: 'active',
+        lastSeen: {
+          gte: timeWindowStart,
+        },
+      },
+    });
+
+    for (const dbAlert of candidates) {
+      const alert = this.dbAlertToModel(dbAlert);
 
       // Same entity and type
       if (alert.entityId === input.entityId && alert.type === input.type) {
         // Check similarity
         const similarity = this.computeSimilarity(alert, input);
         if (similarity > this.deduplicationConfig.similarityThreshold) {
-          return alert;
+          return dbAlert;
         }
       }
 
@@ -180,7 +254,7 @@ export class AlertOrchestrator {
       ) {
         const similarity = this.computeSimilarity(alert, input);
         if (similarity > this.deduplicationConfig.similarityThreshold) {
-          return alert;
+          return dbAlert;
         }
       }
     }
@@ -192,7 +266,7 @@ export class AlertOrchestrator {
    * Compute string similarity (Levenshtein ratio).
    */
   private computeSimilarity(alert: Alert, input: AlertInput): number {
-    const titleDist = this.levenshteinDistance(alert.title, input.title);
+    const titleDist = levenshteinDistance(alert.title, input.title);
     const maxLen = Math.max(alert.title.length, input.title.length);
     return 1 - titleDist / (maxLen || 1);
   }
@@ -208,7 +282,7 @@ export class AlertOrchestrator {
     const entity1 = this.store.getEntity?.(plugin1, id1);
     const entity2 = this.store.getEntity?.(plugin2, id2);
 
-    if (!entity1 || !entity2 || !entity1.latitude || !entity2.latitude) {
+    if (!entity1 || !entity2 || !entity1.latitude || !entity2.latitude || !entity1.longitude || !entity2.longitude) {
       return Infinity;
     }
 
@@ -226,52 +300,29 @@ export class AlertOrchestrator {
     return R * c;
   }
 
-  private levenshteinDistance(s1: string, s2: string): number {
-    const len1 = s1.length;
-    const len2 = s2.length;
-    const matrix = Array(len1 + 1)
-      .fill(null)
-      .map(() => Array(len2 + 1).fill(0));
-
-    for (let i = 0; i <= len1; i++) matrix[i][0] = i;
-    for (let j = 0; j <= len2; j++) matrix[0][j] = j;
-
-    for (let i = 1; i <= len1; i++) {
-      for (let j = 1; j <= len2; j++) {
-        const cost = s1[i - 1] === s2[j - 1] ? 0 : 1;
-        matrix[i][j] = Math.min(
-          matrix[i - 1][j] + 1,
-          matrix[i][j - 1] + 1,
-          matrix[i - 1][j - 1] + cost,
-        );
-      }
-    }
-
-    return matrix[len1][len2];
-  }
-
   /**
    * Enrich alert with semantic context.
    */
   private async enrichAlert(alert: Alert): Promise<void> {
     const [pluginId, entityId] = alert.entityId.split('|');
 
-    // Get entity classification
-    const classification = this.store.getClassification?.(pluginId, entityId);
+    // Fetch all enrichment data in parallel
+    const [classification, threat, relationships] = await Promise.all([
+      Promise.resolve(this.store.getClassification?.(pluginId, entityId)),
+      Promise.resolve(this.store.getThreatAssessment?.(pluginId, entityId)),
+      Promise.resolve(this.store.getRelationshipsFrom?.(pluginId, entityId)),
+    ]);
+
     if (classification) {
       alert.enrichedContext.entityType = classification.type;
       alert.enrichedContext.disposition = classification.disposition;
     }
 
-    // Get threat assessment
-    const threat = this.store.getThreatAssessment?.(pluginId, entityId);
     if (threat) {
       alert.enrichedContext.threatLevel = threat.threatLevel;
       alert.enrichedContext.hostilityScore = threat.hostilityScore;
     }
 
-    // Get related entities
-    const relationships = this.store.getRelationshipsFrom?.(pluginId, entityId);
     if (relationships) {
       alert.enrichedContext.relatedEntities = relationships.map((r) => r.targetId);
     }
@@ -311,64 +362,111 @@ export class AlertOrchestrator {
   /**
    * Resolve an active alert.
    */
-  resolveAlert(alertId: string): void {
-    const alert = this.activeAlerts.get(alertId);
-    if (alert) {
-      alert.status = 'resolved';
-    }
+  async resolveAlert(alertId: string): Promise<void> {
+    await this.db.alert.update({
+      where: { id: alertId },
+      data: {
+        status: 'resolved',
+        resolvedAt: new Date(),
+      },
+    });
+
+    await this.db.alertEvent.create({
+      data: {
+        tenantId: this.tenantId,
+        alertId,
+        eventType: 'resolved',
+      },
+    });
   }
 
   /**
    * Suppress an alert temporarily.
    */
-  suppressAlert(alertId: string, durationMs: number): void {
-    const alert = this.activeAlerts.get(alertId);
-    if (alert) {
-      alert.status = 'suppressed';
-      setTimeout(() => {
-        if (alert.status === 'suppressed') {
-          alert.status = 'active';
+  async suppressAlert(alertId: string, durationMs: number): Promise<void> {
+    const suppressedUntil = new Date(Date.now() + durationMs);
+
+    await this.db.alert.update({
+      where: { id: alertId },
+      data: {
+        status: 'suppressed',
+        suppressedUntil,
+      },
+    });
+
+    await this.db.alertEvent.create({
+      data: {
+        tenantId: this.tenantId,
+        alertId,
+        eventType: 'suppressed',
+        eventData: JSON.stringify({ durationMs, suppressedUntil }),
+      },
+    });
+
+    // Schedule re-activation after duration
+    setTimeout(async () => {
+      try {
+        const alert = await this.db.alert.findUnique({ where: { id: alertId } });
+        if (alert && alert.status === 'suppressed') {
+          await this.db.alert.update({
+            where: { id: alertId },
+            data: { status: 'active' },
+          });
         }
-      }, durationMs);
-    }
+      } catch (error) {
+        console.error(`Failed to reactivate alert ${alertId}:`, error);
+      }
+    }, durationMs);
   }
 
   /**
    * Get active alerts.
    */
-  getActiveAlerts(severity?: string): Alert[] {
-    return Array.from(this.activeAlerts.values())
-      .filter((a) => a.status === 'active' && (!severity || a.severity === severity))
-      .sort((a, b) => {
-        const severityOrder = { critical: 0, high: 1, medium: 2, low: 3 };
-        return severityOrder[a.severity as keyof typeof severityOrder] -
-          severityOrder[b.severity as keyof typeof severityOrder];
-      });
+  async getActiveAlerts(severity?: string): Promise<Alert[]> {
+    const alerts = await this.db.alert.findMany({
+      where: {
+        tenantId: this.tenantId,
+        status: 'active',
+        severity: severity ? severity : undefined,
+      },
+      orderBy: [
+        { severity: 'asc' },
+        { lastSeen: 'desc' },
+      ],
+    });
+
+    return alerts.map((a) => this.dbAlertToModel(a));
   }
 
   /**
    * Get alert statistics.
    */
-  getStats(): {
+  async getStats(): Promise<{
     activeCount: number;
     criticalCount: number;
     highCount: number;
     totalDeduplicatedFrom: number;
-  } {
+  }> {
+    const alerts = await this.db.alert.findMany({
+      where: {
+        tenantId: this.tenantId,
+        status: 'active',
+      },
+    });
+
     let totalDeduplicatedFrom = 0;
     let criticalCount = 0;
     let highCount = 0;
 
-    for (const alert of this.activeAlerts.values()) {
-      if (alert.status === 'active') {
-        totalDeduplicatedFrom += alert.sourceAlertIds.length - 1;
-        if (alert.severity === 'critical') criticalCount++;
-        if (alert.severity === 'high') highCount++;
-      }
+    for (const alert of alerts) {
+      const sourceIds = JSON.parse(alert.sourceAlertIds);
+      totalDeduplicatedFrom += sourceIds.length - 1;
+      if (alert.severity === 'critical') criticalCount++;
+      if (alert.severity === 'high') highCount++;
     }
 
     return {
-      activeCount: Array.from(this.activeAlerts.values()).filter((a) => a.status === 'active').length,
+      activeCount: alerts.length,
       criticalCount,
       highCount,
       totalDeduplicatedFrom,
