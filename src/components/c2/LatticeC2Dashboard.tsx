@@ -12,8 +12,10 @@ import {
   Clock,
   Plus,
   Search,
+  Zap,
 } from 'lucide-react';
 import { StatusIndicator } from './StatusIndicator';
+import { PlaybookManager } from './PlaybookManager';
 
 interface Entity {
   id: string;
@@ -476,6 +478,15 @@ export function LatticeC2Dashboard() {
                   )}
                 </div>
               </div>
+            </div>
+
+            {/* Mission Automation Section */}
+            <div className="border-t border-slate-800 bg-slate-900/50 p-4 flex-shrink-0">
+              <div className="flex items-center gap-2 mb-3">
+                <Zap size={16} className="text-yellow-400" />
+                <h3 className="text-xs font-semibold text-slate-100 uppercase">Mission Automation</h3>
+              </div>
+              <PlaybookManager entityId={selectedEntity.id} entityName={selectedEntity.name} />
             </div>
 
             {/* Action Buttons */}
