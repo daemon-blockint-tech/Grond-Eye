@@ -9,7 +9,7 @@ import type {
   EntityDomain,
   Disposition,
   Confidence,
-} from '@grond/plugin-sdk';
+} from '@maven-system/plugin-sdk';
 import type { ThreatIntelligence } from './agentContext';
 import { SemanticStore } from './semanticStore';
 

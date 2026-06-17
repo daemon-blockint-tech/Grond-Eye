@@ -8,7 +8,7 @@
 import React from "react";
 import * as ReactDOM from "react-dom";
 import * as jsxRuntime from "react/jsx-runtime";
-import * as GrondPluginSDK from "@grond/plugin-sdk";
+import * as GrondPluginSDK from "@maven-system/plugin-sdk";
 import { getPluginDataEngineUrl } from "@/core/grondEnv";
 import * as Cesium from "cesium";
 import * as Resium from "resium";
@@ -34,7 +34,7 @@ export interface GrondHostGlobals {
 declare global {
 
     var __WWV_HOST__: GrondHostGlobals | undefined;
-    var __GROND_HOST__: GrondHostGlobals | undefined;
+    var __MAVEN_HOST__: GrondHostGlobals | undefined;
 }
 
 /**
@@ -46,7 +46,7 @@ declare global {
  * @returns A promise that resolves when all globals have been injected.
  */
 export async function injectHostGlobals(): Promise<void> {
-    if (globalThis.__WWV_HOST__ || globalThis.__GROND_HOST__) return;
+    if (globalThis.__WWV_HOST__ || globalThis.__MAVEN_HOST__) return;
 
     const Cesium = await import("cesium");
     const Resium = await import("resium");
@@ -65,7 +65,7 @@ export async function injectHostGlobals(): Promise<void> {
         CameraStream,
     };
     globalThis.__WWV_HOST__ = host;
-    globalThis.__GROND_HOST__ = host;
+    globalThis.__MAVEN_HOST__ = host;
 
     const envDataEngine = getPluginDataEngineUrl();
     const engineHttp = envDataEngine ?? "https://dataengine.grond.dev";
@@ -73,9 +73,9 @@ export async function injectHostGlobals(): Promise<void> {
         ? `${envDataEngine.replace(/^http/, "ws")}/stream`
         : "wss://dataengine.grond.dev/stream";
     (globalThis as unknown as { __WWV_ENGINE_URL__?: string }).__WWV_ENGINE_URL__ = engineHttp;
-    (globalThis as unknown as { __GROND_ENGINE_URL__?: string }).__GROND_ENGINE_URL__ = engineHttp;
+    (globalThis as unknown as { __MAVEN_ENGINE_URL__?: string }).__MAVEN_ENGINE_URL__ = engineHttp;
     (globalThis as unknown as { __WWV_WS_ENGINE_URL__?: string }).__WWV_WS_ENGINE_URL__ = engineWs;
-    (globalThis as unknown as { __GROND_WS_ENGINE_URL__?: string }).__GROND_WS_ENGINE_URL__ = engineWs;
+    (globalThis as unknown as { __MAVEN_WS_ENGINE_URL__?: string }).__MAVEN_WS_ENGINE_URL__ = engineWs;
 
     console.log("[HostGlobals] React and SDK injected for dynamic plugins");
 }

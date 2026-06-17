@@ -1,10 +1,10 @@
 services:
-  grond:
+  maven:
     build:
       context: .
       args:
-        - NEXT_PUBLIC_GROND_EDITION=${NEXT_PUBLIC_GROND_EDITION:-local}
-        - NEXT_PUBLIC_GROND_PLUGIN_DATA_ENGINE_URL=${NEXT_PUBLIC_GROND_PLUGIN_DATA_ENGINE_URL:-}
+        - NEXT_PUBLIC_MAVEN_EDITION=${NEXT_PUBLIC_MAVEN_EDITION:-local}
+        - NEXT_PUBLIC_MAVEN_DATA_ENGINE_URL=${NEXT_PUBLIC_MAVEN_DATA_ENGINE_URL:-}
         - NEXT_PUBLIC_SUPABASE_URL=${NEXT_PUBLIC_SUPABASE_URL:-}
         - NEXT_PUBLIC_SUPABASE_ANON_KEY=${NEXT_PUBLIC_SUPABASE_ANON_KEY:-}
         - NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=${NEXT_PUBLIC_GOOGLE_MAPS_API_KEY:-}
@@ -13,16 +13,16 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - grond-data:/app/data
+      - maven-data:/app/data
       - ./public/plugins-local:/app/public/plugins-local:ro
     env_file:
       - path: .env
         required: false
     environment:
       - "AUTH_SECRET=${AUTH_SECRET:-default_secret_for_local_dev}"
-      - "GROND_DEMO_ADMIN_SECRET=${GROND_DEMO_ADMIN_SECRET:-}"
-      - "GROND_BRIDGE_TOKEN=${GROND_BRIDGE_TOKEN:-}"
-      - "DATABASE_URL=postgresql://postgres:postgres@db:5432/grond?schema=public"
+      - "MAVEN_DEMO_ADMIN_SECRET=${MAVEN_DEMO_ADMIN_SECRET:-}"
+      - "MAVEN_BRIDGE_TOKEN=${MAVEN_BRIDGE_TOKEN:-}"
+      - "DATABASE_URL=postgresql://postgres:postgres@db:5432/maven?schema=public"
     depends_on:
       db:
         condition: service_healthy
@@ -40,20 +40,20 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: grond
+      POSTGRES_DB: maven
     ports:
-      - "${GROND_DB_PORT:-5432}:5432"
+      - "${MAVEN_DB_PORT:-5432}:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d grond"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d maven"]
       interval: 5s
       timeout: 5s
       retries: 5
       start_period: 60s
 
-  grond-data-engine:
-    image: ghcr.io/silvertakana/grond-data-engine:latest
+  maven-data-engine:
+    image: ghcr.io/daemon-blockint-tech/maven-data-engine:latest
     command: >
       sh -c "
       echo 'Syncing workspace dependencies...' &&
@@ -64,17 +64,17 @@ services:
       - "5000:5000"
     environment:
       - PORT=5000
-      - REDIS_URL=redis://grond-redis:6379
+      - REDIS_URL=redis://maven-redis:6379
       - SEEDERS_DIR=/app/seeders
       - DB_PATH=/app/data/engine.db
     depends_on:
-      grond-redis:
+      maven-redis:
         condition: service_healthy
     restart: unless-stopped
     profiles:
       - engine
 
-  grond-redis:
+  maven-redis:
     image: redis:7-alpine
     healthcheck:
       test: ['CMD', 'redis-cli', 'ping']
@@ -89,5 +89,5 @@ networks:
     external: true
 
 volumes:
-  grond-data:
+  maven-data:
   postgres-data:

@@ -3,7 +3,7 @@
  * This file serves as a local proxy for the SDK types to maintain backward compatibility
  * for the application's imports while keeping the SDK as the single source of truth.
  */
-// Source of truth for types is now @grond/plugin-sdk.
+// Source of truth for types is now @maven-system/plugin-sdk.
 export type {
     PluginCategory,
     TimeRange,
@@ -20,4 +20,4 @@ export type {
     FilterValue,
     WorldPlugin,
     DataBusEvents,
-} from "@grond/plugin-sdk";
+} from "@maven-system/plugin-sdk";

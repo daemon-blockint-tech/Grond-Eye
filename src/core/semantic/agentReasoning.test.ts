@@ -8,7 +8,7 @@ import { SemanticStore } from './semanticStore';
 import { AgentContext } from './agentContext';
 import { SemanticAgent } from './agentReasoning';
 import { ThreatInferenceEngine } from './threatInference';
-import type { EntityClassification } from '@grond/plugin-sdk';
+import type { EntityClassification } from '@maven-system/plugin-sdk';
 
 describe('ThreatInferenceEngine', () => {
   let store: SemanticStore;

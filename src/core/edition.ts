@@ -1,7 +1,7 @@
 /**
  * Edition detection module.
  *
- * Reads `NEXT_PUBLIC_GROND_EDITION` with legacy `NEXT_PUBLIC_WWV_EDITION` fallback.
+ * Reads `NEXT_PUBLIC_MAVEN_EDITION` with legacy `NEXT_PUBLIC_WWV_EDITION` fallback.
  */
 
 import { getDemoAdminSecret as readDemoAdminSecret, getPublicEdition } from "@/core/grondEnv";

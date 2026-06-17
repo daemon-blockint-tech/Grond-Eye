@@ -6,7 +6,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { SemanticStore } from './semanticStore';
 import { SemanticQueryEngine } from './queryEngine';
-import type { EntityClassification, SemanticRelationship } from '@grond/plugin-sdk';
+import type { EntityClassification, SemanticRelationship } from '@maven-system/plugin-sdk';
 
 describe('SemanticQueryEngine', () => {
   let store: SemanticStore;

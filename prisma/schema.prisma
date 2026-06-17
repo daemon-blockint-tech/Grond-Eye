@@ -366,3 +366,77 @@ model FusionEvent {
   @@index([tenantId, proposedAt])
   @@map("fusion_events")
 }
+
+/**
+ * System alerts: multi-source alert correlation and deduplication.
+ * Intelligently routes, enriches, and aggregates alerts across the system.
+ */
+model Alert {
+  id                  String          @id @default(uuid())
+  tenantId            String?
+
+  // Alert identification
+  sourceAlertIds      String          // JSON array of deduplicated source IDs
+  aggregatedCount     Int             @default(1) // How many alerts were merged
+  type                String          // 'threat', 'anomaly', 'fusion', 'threshold'
+  severity            String          // 'low', 'medium', 'high', 'critical'
+  title               String
+  description         String
+
+  // Entity reference
+  sourcePluginId      String
+  entityId            String
+
+  // Context and enrichment
+  enrichedContext     String          // JSON object with semantic enrichment
+
+  // Status tracking
+  status              String          @default("active") // 'active', 'escalated', 'suppressed', 'resolved'
+  escalationLevel     Float           @default(0) // 0-3 scale
+  routes              String          // JSON array of routing targets
+
+  // Timing
+  createdAt           DateTime        @default(now())
+  lastSeen            DateTime        @default(now())
+  resolvedAt          DateTime?
+  suppressedUntil     DateTime?
+
+  // Audit trail
+  updatedAt           DateTime        @updatedAt
+
+  alertEvents         AlertEvent[]
+
+  @@index([tenantId, status])
+  @@index([tenantId, severity])
+  @@index([tenantId, createdAt])
+  @@index([tenantId, lastSeen])
+  @@map("alerts")
+}
+
+/**
+ * Alert events: audit trail of alert lifecycle (created, escalated, resolved, etc).
+ */
+model AlertEvent {
+  id                String        @id @default(uuid())
+  tenantId          String?
+
+  // Link to alert
+  alertId           String
+  alert             Alert         @relation(fields: [alertId], references: [id], onDelete: Cascade)
+
+  // Event details
+  eventType         String        // "created", "deduplicated", "escalated", "suppressed", "resolved"
+  eventData         String?       // JSON additional context
+
+  // User action (if any)
+  actorUserId       String?
+  actorAction       String?       // "resolved", "suppressed", "escalated"
+  actorNotes        String?
+
+  createdAt         DateTime      @default(now())
+
+  @@index([tenantId, alertId])
+  @@index([tenantId, eventType])
+  @@index([tenantId, createdAt])
+  @@map("alert_events")
+}

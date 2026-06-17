@@ -4,7 +4,7 @@
  * Orchestrates the full agent intelligence cycle.
  */
 
-import type { Confidence } from '@grond/plugin-sdk';
+import type { Confidence } from '@maven-system/plugin-sdk';
 import type { AgentAction } from '@/lib/agent/bus';
 import { SemanticStore } from './semanticStore';
 import { SemanticQueryEngine } from './queryEngine';

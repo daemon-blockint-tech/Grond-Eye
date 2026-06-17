@@ -12,7 +12,7 @@ import type {
   EntityType,
   EntityDomain,
   Disposition,
-} from '@grond/plugin-sdk';
+} from '@maven-system/plugin-sdk';
 
 interface StoredClassification extends EntityClassification {
   entityPluginId: string;

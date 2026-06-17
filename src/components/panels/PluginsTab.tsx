@@ -64,7 +64,7 @@ function TrustBadge({ trust }: { trust: string }) {
 function BrowseLink() {
     return (
       <a
-        href="https://marketplace.grond.dev"
+        href="https://marketplace.maven-system.dev"
         target="_blank"
         rel="noopener noreferrer"
         className="plugins-tab__browse"
