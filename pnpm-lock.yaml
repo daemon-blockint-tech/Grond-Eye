@@ -112,8 +112,8 @@ importers:
         specifier: ^8.2.0
         version: 8.2.0
       ws:
-        specifier: ^8.14.2
-        version: 8.20.0
+        specifier: ^8.20.1
+        version: 8.20.1
       zod:
         specifier: ^4.4.3
         version: 4.4.3
@@ -169,6 +169,7 @@ importers:
       '@vitejs/plugin-react':
         specifier: ^5.1.4
         version: 5.2.0(vite@8.0.16(@types/node@25.7.0)(esbuild@0.27.4)(jiti@2.7.0)(terser@5.48.0)(tsx@4.21.0))
+        version: 5.2.0(vite@8.0.12(@types/node@25.7.0)(esbuild@0.27.4)(jiti@2.7.0)(terser@5.48.0)(tsx@4.21.0))
       '@vitest/coverage-v8':
         specifier: 4.1.6
         version: 4.1.6(vitest@4.1.6)
@@ -229,6 +230,11 @@ importers:
       vitest:
         specifier: ^4.1.6
         version: 4.1.6(@opentelemetry/api@1.9.1)(@types/node@25.7.0)(@vitest/coverage-v8@4.1.6)(jsdom@28.1.0)(vite@8.0.16(@types/node@25.7.0)(esbuild@0.27.4)(jiti@2.7.0)(terser@5.48.0)(tsx@4.21.0))
+        specifier: ^8.0.12
+        version: 8.0.12(@types/node@25.7.0)(esbuild@0.27.4)(jiti@2.7.0)(terser@5.48.0)(tsx@4.21.0)
+      vitest:
+        specifier: ^4.1.6
+        version: 4.1.6(@opentelemetry/api@1.9.1)(@types/node@25.7.0)(@vitest/coverage-v8@4.1.6)(jsdom@28.1.0)(vite@8.0.12(@types/node@25.7.0)(esbuild@0.27.4)(jiti@2.7.0)(terser@5.48.0)(tsx@4.21.0))
 
   packages/grond-cli:
     dependencies:
@@ -2795,6 +2801,8 @@ packages:
 
   baseline-browser-mapping@2.10.37:
     resolution: {integrity: sha512-girxaJ7WZssDOFhzCGZTDKoTa1gk6A1TbflaYTpykLJ4UU9Fz9kx1aREM8JCuoVHbL8X8T/mJg7w2oYSq72Oig==}
+  baseline-browser-mapping@2.10.35:
+    resolution: {integrity: sha512-honAfLBde0HAFLdNyBEfuuENkF6zR+ozxqxa/2zJKHBe1qzLqyTSeRKpdPEHAP03rlDGyQOPnCSxnVpVqQo9Mg==}
     engines: {node: '>=6.0.0'}
     hasBin: true
 
@@ -3202,6 +3210,8 @@ packages:
 
   electron-to-chromium@1.5.374:
     resolution: {integrity: sha512-HCF5i7izveksHSGqa7mhDh6tr3Uz9Dar2RAjwuh69bw3QGPVObjQIgLwQWeO/Rxp9/r0KdboKy9RbpQDl97fjg==}
+  electron-to-chromium@1.5.371:
+    resolution: {integrity: sha512-e9htk9mAYL6AzmkEhSvVVw7IWGSBJ/Bqdn2eRyRLrj1g6sncN4WbFt5qnILYoCktktr45pyjIrOiRvBThQ808w==}
 
   emoji-regex@10.6.0:
     resolution: {integrity: sha512-toUI84YS5YmxW219erniWD0CIVOo46xGKColeNQRgOzDorgBi1v4D71/OFzgD9GO2UGKIv1C3Sp8DAn0+j5w7A==}
@@ -5698,8 +5708,8 @@ packages:
   wrappy@1.0.2:
     resolution: {integrity: sha512-l4Sp/DRseor9wL6EvV2+TuQn63dMkPjZ/sp9XkghTEbV9KlPS1xUsZ3u7/IQO4wxtcFB4bgpQPRcR3QCvezPcQ==}
 
-  ws@8.20.0:
-    resolution: {integrity: sha512-sAt8BhgNbzCtgGbt2OxmpuryO63ZoDk/sqaB/znQm94T4fCEsy/yV+7CdC1kJhOU9lboAEU7R3kquuycDoibVA==}
+  ws@8.20.1:
+    resolution: {integrity: sha512-It4dO0K5v//JtTXuPkfEOaI3uUN87iYPnqo/ZzqCoG3g8uhA66QUMs/SrM0YK7/NAu+r4LMh/9dq2A7k+rHs+w==}
     engines: {node: '>=10.0.0'}
     peerDependencies:
       bufferutil: ^4.0.1
@@ -7571,6 +7581,7 @@ snapshots:
       semver: 7.8.0
       tslib: 2.8.1
       vitest: 4.1.6(@opentelemetry/api@1.9.1)(@types/node@25.7.0)(@vitest/coverage-v8@4.1.6)(jsdom@28.1.0)(vite@8.0.16(@types/node@25.7.0)(esbuild@0.27.4)(jiti@2.7.0)(terser@5.48.0)(tsx@4.21.0))
+      vitest: 4.1.6(@opentelemetry/api@1.9.1)(@types/node@25.7.0)(@vitest/coverage-v8@4.1.6)(jsdom@28.1.0)(vite@8.0.12(@types/node@25.7.0)(esbuild@0.27.4)(jiti@2.7.0)(terser@5.48.0)(tsx@4.21.0))
 
   '@supabase/auth-js@2.105.4':
     dependencies:
@@ -7955,6 +7966,7 @@ snapshots:
       weakmap-polyfill: 2.0.4
 
   '@vitejs/plugin-react@5.2.0(vite@8.0.16(@types/node@25.7.0)(esbuild@0.27.4)(jiti@2.7.0)(terser@5.48.0)(tsx@4.21.0))':
+  '@vitejs/plugin-react@5.2.0(vite@8.0.12(@types/node@25.7.0)(esbuild@0.27.4)(jiti@2.7.0)(terser@5.48.0)(tsx@4.21.0))':
     dependencies:
       '@babel/core': 7.29.0
       '@babel/plugin-transform-react-jsx-self': 7.27.1(@babel/core@7.29.0)
@@ -7963,6 +7975,7 @@ snapshots:
       '@types/babel__core': 7.20.5
       react-refresh: 0.18.0
       vite: 8.0.16(@types/node@25.7.0)(esbuild@0.27.4)(jiti@2.7.0)(terser@5.48.0)(tsx@4.21.0)
+      vite: 8.0.12(@types/node@25.7.0)(esbuild@0.27.4)(jiti@2.7.0)(terser@5.48.0)(tsx@4.21.0)
     transitivePeerDependencies:
       - supports-color
 
@@ -7979,6 +7992,7 @@ snapshots:
       std-env: 4.1.0
       tinyrainbow: 3.1.0
       vitest: 4.1.6(@opentelemetry/api@1.9.1)(@types/node@25.7.0)(@vitest/coverage-v8@4.1.6)(jsdom@28.1.0)(vite@8.0.16(@types/node@25.7.0)(esbuild@0.27.4)(jiti@2.7.0)(terser@5.48.0)(tsx@4.21.0))
+      vitest: 4.1.6(@opentelemetry/api@1.9.1)(@types/node@25.7.0)(@vitest/coverage-v8@4.1.6)(jsdom@28.1.0)(vite@8.0.12(@types/node@25.7.0)(esbuild@0.27.4)(jiti@2.7.0)(terser@5.48.0)(tsx@4.21.0))
 
   '@vitest/expect@4.1.6':
     dependencies:
@@ -7990,12 +8004,14 @@ snapshots:
       tinyrainbow: 3.1.0
 
   '@vitest/mocker@4.1.6(vite@8.0.16(@types/node@25.7.0)(esbuild@0.27.4)(jiti@2.7.0)(terser@5.48.0)(tsx@4.21.0))':
+  '@vitest/mocker@4.1.6(vite@8.0.12(@types/node@25.7.0)(esbuild@0.27.4)(jiti@2.7.0)(terser@5.48.0)(tsx@4.21.0))':
     dependencies:
       '@vitest/spy': 4.1.6
       estree-walker: 3.0.3
       magic-string: 0.30.21
     optionalDependencies:
       vite: 8.0.16(@types/node@25.7.0)(esbuild@0.27.4)(jiti@2.7.0)(terser@5.48.0)(tsx@4.21.0)
+      vite: 8.0.12(@types/node@25.7.0)(esbuild@0.27.4)(jiti@2.7.0)(terser@5.48.0)(tsx@4.21.0)
 
   '@vitest/pretty-format@4.1.6':
     dependencies:
@@ -8295,6 +8311,7 @@ snapshots:
   baseline-browser-mapping@2.10.29: {}
 
   baseline-browser-mapping@2.10.37: {}
+  baseline-browser-mapping@2.10.35: {}
 
   bcp-47-match@2.0.3: {}
 
@@ -8371,6 +8388,9 @@ snapshots:
       baseline-browser-mapping: 2.10.37
       caniuse-lite: 1.0.30001799
       electron-to-chromium: 1.5.374
+      baseline-browser-mapping: 2.10.35
+      caniuse-lite: 1.0.30001799
+      electron-to-chromium: 1.5.371
       node-releases: 2.0.47
       update-browserslist-db: 1.2.3(browserslist@4.28.2)
 
@@ -8756,6 +8776,7 @@ snapshots:
   electron-to-chromium@1.5.328: {}
 
   electron-to-chromium@1.5.374: {}
+  electron-to-chromium@1.5.371: {}
 
   emoji-regex@10.6.0: {}
 
@@ -11394,6 +11415,7 @@ snapshots:
       media-played-ranges-mixin: 0.1.0
 
   vite@8.0.16(@types/node@25.7.0)(esbuild@0.27.4)(jiti@2.7.0)(terser@5.48.0)(tsx@4.21.0):
+  vite@8.0.12(@types/node@25.7.0)(esbuild@0.27.4)(jiti@2.7.0)(terser@5.48.0)(tsx@4.21.0):
     dependencies:
       lightningcss: 1.32.0
       picomatch: 4.0.4
@@ -11412,6 +11434,10 @@ snapshots:
     dependencies:
       '@vitest/expect': 4.1.6
       '@vitest/mocker': 4.1.6(vite@8.0.16(@types/node@25.7.0)(esbuild@0.27.4)(jiti@2.7.0)(terser@5.48.0)(tsx@4.21.0))
+  vitest@4.1.6(@opentelemetry/api@1.9.1)(@types/node@25.7.0)(@vitest/coverage-v8@4.1.6)(jsdom@28.1.0)(vite@8.0.12(@types/node@25.7.0)(esbuild@0.27.4)(jiti@2.7.0)(terser@5.48.0)(tsx@4.21.0)):
+    dependencies:
+      '@vitest/expect': 4.1.6
+      '@vitest/mocker': 4.1.6(vite@8.0.12(@types/node@25.7.0)(esbuild@0.27.4)(jiti@2.7.0)(terser@5.48.0)(tsx@4.21.0))
       '@vitest/pretty-format': 4.1.6
       '@vitest/runner': 4.1.6
       '@vitest/snapshot': 4.1.6
@@ -11429,6 +11455,7 @@ snapshots:
       tinyglobby: 0.2.16
       tinyrainbow: 3.1.0
       vite: 8.0.16(@types/node@25.7.0)(esbuild@0.27.4)(jiti@2.7.0)(terser@5.48.0)(tsx@4.21.0)
+      vite: 8.0.12(@types/node@25.7.0)(esbuild@0.27.4)(jiti@2.7.0)(terser@5.48.0)(tsx@4.21.0)
       why-is-node-running: 2.3.0
     optionalDependencies:
       '@opentelemetry/api': 1.9.1
@@ -11583,7 +11610,7 @@ snapshots:
   wrappy@1.0.2:
     optional: true
 
-  ws@8.20.0: {}
+  ws@8.20.1: {}
 
   xml-name-validator@5.0.0: {}
 

@@ -138,3 +138,231 @@ model MarketplaceCredential {
   @@unique([tenantId])
   @@map("marketplace_credentials")
 }
+
+// ─── Semantic Layer Models (Entity Classification & Ontology) ───
+
+/**
+ * Semantic classification for an entity.
+ * Stores "what type of thing is this entity?" and related metadata.
+ */
+model EntityClassification {
+  id                   String    @id @default(uuid())
+  tenantId             String?
+
+  // Entity reference (pluginId + entityId from GeoEntity)
+  entityPluginId       String
+  entityId             String
+
+  // Classification data
+  entityType           String    // aircraft, maritime_vessel, person, etc.
+  entityDomain         String    // air, maritime, land, cyber, space, subsurface, unknown
+  subtypes             String?   // JSON array: ["fighter", "transport"]
+  disposition          String?   // friend, hostile, neutral, unknown
+  confidence           Float     @default(1.0) // 0-1 scale
+
+  // Metadata
+  classificationSource String?   // which system classified this?
+  classifiedAt         DateTime  @default(now())
+  expiresAt            DateTime? // temporal classification validity
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+
+  @@unique([tenantId, entityPluginId, entityId])
+  @@index([tenantId, entityType])
+  @@index([tenantId, disposition])
+  @@index([tenantId, entityDomain])
+  @@map("entity_classifications")
+}
+
+/**
+ * Semantic properties with unit and type metadata.
+ * Replaces opaque "properties" with typed, measurable attributes.
+ */
+model SemanticPropertyRecord {
+  id                String    @id @default(uuid())
+  tenantId          String?
+
+  // Entity reference
+  entityPluginId    String
+  entityId          String
+
+  // Property definition
+  propertyName      String    // e.g., "speed", "heading", "range"
+  semanticType      String?   // e.g., "speed", "heading", "distance", "altitude"
+  value             String    // JSON-serialized value
+  unit              String?   // e.g., "knots", "meters", "degrees"
+  confidence        Float?    @default(1.0)
+
+  // Temporal
+  timestamp         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  @@unique([tenantId, entityPluginId, entityId, propertyName])
+  @@index([tenantId, entityPluginId, entityId])
+  @@map("semantic_properties")
+}
+
+/**
+ * Entity provenance: where did this entity come from?
+ * Tracks fusion, corroboration, and source lineage.
+ */
+model EntityProvenance {
+  id                    String    @id @default(uuid())
+  tenantId              String?
+
+  // Entity reference
+  entityPluginId        String
+  entityId              String
+
+  // Source tracking
+  sourcePluginId        String
+  sourceTimestamp       DateTime
+  sourceDescription     String?
+
+  // Fusion tracking (if merged from multiple sources)
+  fusedFromPluginIds    String?   // JSON array of plugin IDs
+  fusedFromEntityIds    String?   // JSON array of entity IDs
+  corroboratingPlugins  String?   // JSON array of confirming plugin IDs
+
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@unique([tenantId, entityPluginId, entityId])
+  @@index([tenantId, entityPluginId, entityId])
+  @@index([tenantId, sourcePluginId])
+  @@map("entity_provenance")
+}
+
+/**
+ * Semantic relationships: how do entities relate to each other?
+ * Forms the edges of the ontology knowledge graph.
+ */
+model SemanticRelationship {
+  id                  String    @id @default(uuid())
+  tenantId            String?
+
+  // Edge definition
+  sourcePluginId      String
+  sourceEntityId      String
+  targetPluginId      String
+  targetEntityId      String
+  relationshipType    String    // part_of, controlled_by, same_as, etc.
+
+  // Relationship metadata
+  confidence          Float     @default(1.0)
+  context             String?   // JSON additional context
+
+  // Temporal validity
+  establishedAt       DateTime  @default(now())
+  expiresAt           DateTime?
+
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  @@unique([tenantId, sourcePluginId, sourceEntityId, targetPluginId, targetEntityId, relationshipType])
+  @@index([tenantId, sourcePluginId, sourceEntityId])
+  @@index([tenantId, targetPluginId, targetEntityId])
+  @@index([tenantId, relationshipType])
+  @@map("semantic_relationships")
+}
+
+/**
+ * Entity threat assessment (cache of computed threat level).
+ * Allows efficient queries like "find high-threat entities".
+ */
+model EntityThreatAssessment {
+  id                String    @id @default(uuid())
+  tenantId          String?
+
+  // Entity reference
+  entityPluginId    String
+  entityId          String
+
+  // Threat metrics
+  threatLevel       String    // low, medium, high, critical
+  hostilityScore    Float     // 0-1
+  proximityScore    Float     // 0-1 (how close to friendly assets?)
+  threatTypes       String?   // JSON array: ["military", "cyber", "infrastructure"]
+
+  // Reasoning trace (optional, for explainability)
+  reasoningTrace    String?   // JSON structured trace of how threat was calculated
+  assessedAt        DateTime  @default(now())
+  expiresAt         DateTime? // threat assessment TTL
+
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  @@unique([tenantId, entityPluginId, entityId])
+  @@index([tenantId, threatLevel])
+  @@index([tenantId, entityPluginId, entityId])
+  @@map("entity_threat_assessments")
+}
+
+/**
+ * Entity fusion: track merged/deduplicated entities across sources.
+ * Records which entities were fused into a canonical entity.
+ */
+model EntityFusion {
+  id                  String          @id @default(uuid())
+  tenantId            String?
+
+  // Canonical entity (the survivor after merge)
+  canonicalPluginId   String
+  canonicalEntityId   String
+
+  // Fused-from entities (JSON arrays of plugin/entity IDs)
+  fusedPluginIds      String          // JSON array
+  fusedEntityIds      String          // JSON array
+
+  // Merge metadata
+  fusionScore         Float           // 0-1 confidence of merge
+  fusionReasons       String?         // JSON array: ["spatial_proximity", "semantic_name"]
+  fusionStrategy      String?         // which deduplication strategy was used?
+
+  // Human validation
+  validatedBy         String?         // userId of approver
+  validatedAt         DateTime?
+  validationNotes     String?
+
+  // Immutable audit trail
+  createdAt           DateTime        @default(now())
+  updatedAt           DateTime        @updatedAt
+
+  fusionEvents        FusionEvent[]
+
+  @@unique([tenantId, canonicalPluginId, canonicalEntityId])
+  @@index([tenantId, validatedAt])
+  @@index([tenantId, fusionScore])
+  @@map("entity_fusions")
+}
+
+/**
+ * Fusion events: audit trail of merge decisions and status changes.
+ * Immutable log for compliance and troubleshooting.
+ */
+model FusionEvent {
+  id                String        @id @default(uuid())
+  tenantId          String?
+
+  // Link to fusion
+  fusionId          String
+  fusion            EntityFusion  @relation(fields: [fusionId], references: [id], onDelete: Cascade)
+
+  // Event details
+  eventType         String        // "merge_proposed", "merge_accepted", "merge_rejected", "merge_rolled_back"
+  proposedAt        DateTime      @default(now())
+  confidence        Float?        // confidence score at proposal time
+  reasoning         String?       // JSON reasoning snapshot
+
+  // User action (if any)
+  actorUserId       String?
+  actorAction       String?       // "accepted", "rejected", "reviewed"
+  actorNotes        String?
+
+  createdAt         DateTime      @default(now())
+
+  @@index([tenantId, fusionId])
+  @@index([tenantId, eventType])
+  @@index([tenantId, proposedAt])
+  @@map("fusion_events")
+}
