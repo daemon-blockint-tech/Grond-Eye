@@ -154,9 +154,27 @@ export class SemanticStore {
   /**
    * Add a relationship between two entities.
    */
-  addRelationship(relationship: SemanticRelationship): string {
+  addRelationship(
+    sourcePluginId: string,
+    sourceEntityId: string,
+    targetPluginId: string,
+    targetEntityId: string,
+    relationshipType: string,
+    confidence: number = 1.0,
+  ): string {
     const id = `${Math.random().toString(36).slice(2)}`;
-    this.relationships.set(id, { ...relationship, id });
+    const relationship: StoredRelationship = {
+      id,
+      sourceId: `${sourcePluginId}:${sourceEntityId}`,
+      targetId: `${targetPluginId}:${targetEntityId}`,
+      relationshipType,
+      confidence,
+      sourcePluginId,
+      sourceEntityId,
+      targetPluginId,
+      targetEntityId,
+    };
+    this.relationships.set(id, relationship);
     return id;
   }
 
@@ -235,6 +253,70 @@ export class SemanticStore {
   getProvenance(pluginId: string, entityId: string): EntityProvenance | null {
     const key = `${pluginId}:${entityId}`;
     return this.provenance.get(key) ?? null;
+  }
+
+  // ─── Threat Assessment Cache ───────────────────────────────
+
+  private threatAssessments = new Map<string, {
+    threatLevel: string;
+    hostilityScore: number;
+    proximityScore: number;
+  }>();
+
+  /**
+   * Cache threat assessment for an entity.
+   */
+  setThreatAssessment(
+    pluginId: string,
+    entityId: string,
+    threatLevel: string,
+    hostilityScore: number = 0,
+    proximityScore: number = 0,
+  ): void {
+    const key = `${pluginId}:${entityId}`;
+    this.threatAssessments.set(key, { threatLevel, hostilityScore, proximityScore });
+  }
+
+  /**
+   * Get cached threat assessment.
+   */
+  getThreatAssessment(
+    pluginId: string,
+    entityId: string,
+  ): { threatLevel: string; hostilityScore: number; proximityScore: number } | null {
+    const key = `${pluginId}:${entityId}`;
+    return this.threatAssessments.get(key) ?? null;
+  }
+
+  // ─── Entity Cache ──────────────────────────────────────────
+
+  private entities = new Map<string, any>();
+
+  /**
+   * Store an entity (for lookups in fusion engine).
+   */
+  setEntity(
+    pluginId: string,
+    entityId: string,
+    entity: any,
+  ): void {
+    const key = `${pluginId}:${entityId}`;
+    this.entities.set(key, { pluginId, entityId, ...entity });
+  }
+
+  /**
+   * Get an entity by ID.
+   */
+  getEntity(pluginId: string, entityId: string): any | null {
+    const key = `${pluginId}:${entityId}`;
+    return this.entities.get(key) ?? null;
+  }
+
+  /**
+   * Get all entities.
+   */
+  getAllEntities(): any[] {
+    return Array.from(this.entities.values());
   }
 
   // ─── Utilities ─────────────────────────────────────────────
