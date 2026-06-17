@@ -4,7 +4,7 @@ import { createPublicKey, verify } from "crypto";
 const REGISTRY_PUBLIC_KEY = "MCowBQYDK2VwAyEAkYDmLpCrHu1fnsu8CCdICOHg3IUGuDDkA4fpUeJANJk=";
 
 /** Default marketplace registry URL (configurable via env). */
-const REGISTRY_URL = process.env.GROND_REGISTRY_URL ?? process.env.WWV_REGISTRY_URL ?? "https://marketplace.grond.dev/api/registry";
+const REGISTRY_URL = process.env.MAVEN_REGISTRY_URL ?? process.env.WWV_REGISTRY_URL ?? "https://marketplace.maven-system.dev/api/registry";
 
 interface RegistryPayload {
   plugins: string[];

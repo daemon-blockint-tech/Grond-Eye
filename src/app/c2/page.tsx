@@ -1,8 +1,8 @@
 import { LatticeC2Dashboard } from '@/components/c2/LatticeC2Dashboard';
 
 export const metadata = {
-  title: 'C2 Command & Control | Grond-Eye',
-  description: 'Entity management, monitoring, and command & control interface',
+  title: 'C2 Command & Control | MAVEN SYSTEM',
+  description: 'Enterprise threat intelligence and autonomous mission platform - C2 command & control interface',
 };
 
 export default function C2Page() {

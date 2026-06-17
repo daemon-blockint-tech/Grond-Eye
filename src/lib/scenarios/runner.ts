@@ -29,11 +29,11 @@ const activeRuns = new Map<string, ActiveRun>();
 
 declare global {
     // eslint-disable-next-line no-var
-    var __GROND_SCENARIO_RUNS__: Map<string, ActiveRun> | undefined;
+    var __MAVEN_SCENARIO_RUNS__: Map<string, ActiveRun> | undefined;
 }
 
 const runs: Map<string, ActiveRun> =
-    globalThis.__GROND_SCENARIO_RUNS__ ?? (globalThis.__GROND_SCENARIO_RUNS__ = activeRuns);
+    globalThis.__MAVEN_SCENARIO_RUNS__ ?? (globalThis.__MAVEN_SCENARIO_RUNS__ = activeRuns);
 
 /**
  * Start a scenario for the given user; stops any prior run.

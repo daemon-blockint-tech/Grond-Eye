@@ -17,7 +17,7 @@ import { fetchEarthEngineConfigured } from "@/lib/earth-engine/healthClient";
 const MIN_KEY_LENGTH = 20;
 
 /** Tag applied to the Google Photorealistic tileset primitive for discovery. */
-export const GROND_GOOGLE_3D_TAG = "_grondGooglePhotorealistic";
+export const MAVEN_GOOGLE_3D_TAG = "_grondGooglePhotorealistic";
 
 const loadPromises = new WeakMap<CesiumViewer, Promise<Cesium3DTileset | null>>();
 
@@ -47,7 +47,7 @@ export function findGooglePhotorealisticTileset(viewer: CesiumViewer): Cesium3DT
         const primitive = primitives.get(i);
         if (
             primitive instanceof Cesium3DTileset
-            && (primitive as Cesium3DTileset & { [GROND_GOOGLE_3D_TAG]?: boolean })[GROND_GOOGLE_3D_TAG]
+            && (primitive as Cesium3DTileset & { [MAVEN_GOOGLE_3D_TAG]?: boolean })[MAVEN_GOOGLE_3D_TAG]
         ) {
             return primitive;
         }
@@ -95,7 +95,7 @@ export async function loadGooglePhotorealistic3DTileset(
 
         tileset.maximumScreenSpaceError = maxScreenSpaceError;
         (tileset as Cesium3DTileset & { maximumMemoryUsage?: number }).maximumMemoryUsage = 2048;
-        (tileset as Cesium3DTileset & { [GROND_GOOGLE_3D_TAG]?: boolean })[GROND_GOOGLE_3D_TAG] = true;
+        (tileset as Cesium3DTileset & { [MAVEN_GOOGLE_3D_TAG]?: boolean })[MAVEN_GOOGLE_3D_TAG] = true;
 
         viewer.scene.primitives.add(tileset);
         return tileset;

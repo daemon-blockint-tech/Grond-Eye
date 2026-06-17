@@ -11,7 +11,7 @@ import type {
   EntityType,
   EntityDomain,
   Disposition,
-} from '@grond/plugin-sdk';
+} from '@maven-system/plugin-sdk';
 
 /**
  * MCP Tool: Find entities by type and filters.

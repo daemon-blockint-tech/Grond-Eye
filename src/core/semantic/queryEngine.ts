@@ -9,7 +9,7 @@ import type {
   Disposition,
   Confidence,
   EntityType,
-} from '@grond/plugin-sdk';
+} from '@maven-system/plugin-sdk';
 import { SemanticStore } from './semanticStore';
 import { OntologyGraph } from './ontologyGraph';
 import type {

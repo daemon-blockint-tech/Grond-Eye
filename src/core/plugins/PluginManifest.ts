@@ -3,7 +3,7 @@
  * This file allows the application to reference plugin manifest structures
  * while keeping the SDK as the authoritative source of truth.
  */
-// Source of truth for manifest types is now @grond/plugin-sdk.
+// Source of truth for manifest types is now @maven-system/plugin-sdk.
 export type {
     PluginFormat,
     PluginType,
@@ -13,4 +13,4 @@ export type {
     FieldMapping,
     RenderingConfig,
     PluginManifest,
-} from "@grond/plugin-sdk";
+} from "@maven-system/plugin-sdk";

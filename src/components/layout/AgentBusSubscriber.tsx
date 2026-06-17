@@ -7,7 +7,7 @@
  * already drives off of. Renders nothing — purely a side-effect component,
  * paired with `DataBusSubscriber`.
  *
- * Disabled unless `NEXT_PUBLIC_GROND_AGENT_BUS_ENABLED === "true"` so an
+ * Disabled unless `NEXT_PUBLIC_MAVEN_AGENT_BUS_ENABLED === "true"` so an
  * unintended deployment doesn't open a remote-control channel for users
  * who didn't opt in.
  */

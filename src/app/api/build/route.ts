@@ -22,11 +22,11 @@ function readMaybe(p: string): string | null {
     }
 }
 
-const BUILD_ID = process.env.NEXT_PUBLIC_GROND_BUILD_ID
+const BUILD_ID = process.env.NEXT_PUBLIC_MAVEN_BUILD_ID
     ?? process.env.NEXT_PUBLIC_WWV_BUILD_ID
     ?? readMaybe(path.join(process.cwd(), ".build-id"))
     ?? "dev";
-const BUILD_AT = process.env.NEXT_PUBLIC_GROND_BUILD_AT
+const BUILD_AT = process.env.NEXT_PUBLIC_MAVEN_BUILD_AT
     ?? process.env.NEXT_PUBLIC_WWV_BUILD_AT
     ?? readMaybe(path.join(process.cwd(), ".build-at"))
     ?? null;
@@ -37,8 +37,8 @@ export async function GET() {
         built_at: BUILD_AT,
         public_flags: {
             agent_bus_enabled:
-                process.env.NEXT_PUBLIC_GROND_AGENT_BUS_ENABLED === "true" || process.env.NEXT_PUBLIC_WWV_AGENT_BUS_ENABLED === "true",
-            edition: process.env.NEXT_PUBLIC_GROND_EDITION ?? process.env.NEXT_PUBLIC_WWV_EDITION ?? null,
+                process.env.NEXT_PUBLIC_MAVEN_AGENT_BUS_ENABLED === "true" || process.env.NEXT_PUBLIC_WWV_AGENT_BUS_ENABLED === "true",
+            edition: process.env.NEXT_PUBLIC_MAVEN_EDITION ?? process.env.NEXT_PUBLIC_WWV_EDITION ?? null,
         },
     });
 }

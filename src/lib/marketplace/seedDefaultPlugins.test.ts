@@ -69,7 +69,7 @@ describe("seedDefaultPlugins", () => {
     beforeEach(() => {
         vi.clearAllMocks();
         mockIsDemo = false;
-        delete process.env.GROND_SKIP_DEFAULT_PLUGINS;
+        delete process.env.MAVEN_SKIP_DEFAULT_PLUGINS;
         delete process.env.WWV_SKIP_DEFAULT_PLUGINS;
 
         // Defaults: not seeded, no existing plugins, manifests valid
@@ -144,8 +144,8 @@ describe("seedDefaultPlugins", () => {
         expect(mockCreate).toHaveBeenCalled();
     });
 
-    it("skips when GROND_SKIP_DEFAULT_PLUGINS=true", async () => {
-        process.env.GROND_SKIP_DEFAULT_PLUGINS = "true";
+    it("skips when MAVEN_SKIP_DEFAULT_PLUGINS=true", async () => {
+        process.env.MAVEN_SKIP_DEFAULT_PLUGINS = "true";
 
         await seedDefaultPlugins();
 

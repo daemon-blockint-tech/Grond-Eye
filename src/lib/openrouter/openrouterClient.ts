@@ -4,7 +4,7 @@
  * Enables LLM-powered reasoning in semantic agent.
  */
 
-import type { Confidence } from '@grond/plugin-sdk';
+import type { Confidence } from '@maven-system/plugin-sdk';
 
 export interface OpenRouterRequest {
   model: string;

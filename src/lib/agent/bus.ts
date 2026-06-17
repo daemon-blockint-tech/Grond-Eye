@@ -119,8 +119,8 @@ class AgentBus {
 // don't drop and reconnect on every code change in development.
 declare global {
 
-    var __GROND_AGENT_BUS__: AgentBus | undefined;
+    var __MAVEN_AGENT_BUS__: AgentBus | undefined;
     var __WWV_AGENT_BUS__: AgentBus | undefined;
 }
 
-export const agentBus: AgentBus = globalThis.__GROND_AGENT_BUS__ ?? globalThis.__WWV_AGENT_BUS__ ?? (globalThis.__GROND_AGENT_BUS__ = new AgentBus());
+export const agentBus: AgentBus = globalThis.__MAVEN_AGENT_BUS__ ?? globalThis.__WWV_AGENT_BUS__ ?? (globalThis.__MAVEN_AGENT_BUS__ = new AgentBus());

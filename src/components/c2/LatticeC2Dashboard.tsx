@@ -106,9 +106,9 @@ export function LatticeC2Dashboard() {
         {/* Left: Branding */}
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 bg-blue-600 rounded flex items-center justify-center">
-            <span className="text-xs font-bold text-white">GE</span>
+            <span className="text-xs font-bold text-white">MS</span>
           </div>
-          <span className="font-semibold text-slate-100">Grond-Eye</span>
+          <span className="font-semibold text-slate-100">MAVEN SYSTEM</span>
           <span className="text-xs text-slate-500 ml-2">C2 Command & Control</span>
         </div>
 

@@ -10,7 +10,7 @@ import type {
   Disposition,
   Confidence,
   SemanticEntity,
-} from '@grond/plugin-sdk';
+} from '@maven-system/plugin-sdk';
 
 /**
  * Base query result for any semantic search.

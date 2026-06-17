@@ -1,4 +1,4 @@
-import type { WsStreamPayload, GeoEntity } from "@grond/plugin-sdk";
+import type { WsStreamPayload, GeoEntity } from "@maven-system/plugin-sdk";
 import { dataBus } from "./DataBus";
 import { pluginManager } from "../plugins/PluginManager";
 import { useStore } from "../state/store";

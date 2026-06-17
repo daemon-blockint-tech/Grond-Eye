@@ -34,7 +34,7 @@ function getLocalWsUrl() {
  * 1. Local engine (if running at localhost:5000 and has this plugin's seeder)
  * 2. Plugin's ServerPluginConfig.streamUrl (code-based plugins)
  * 3. Plugin's PluginManifest.dataSource.streamUrl (manifest-based plugins)
- * 4. NEXT_PUBLIC_GROND_PLUGIN_DATA_ENGINE_URL env var
+ * 4. NEXT_PUBLIC_MAVEN_PLUGIN_DATA_ENGINE_URL env var
  * 5. Fallback: wss://dataengine.grond.dev/stream (cloud)
  */
 export function resolveEngineUrl(pluginId: string): string {

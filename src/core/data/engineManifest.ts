@@ -11,7 +11,7 @@ let manifestFetched = false;
  * Resolve the base URL of the local data engine.
  *
  * Priority:
- *   1. `NEXT_PUBLIC_GROND_PLUGIN_DATA_ENGINE_URL` env var — if the operator
+ *   1. `NEXT_PUBLIC_MAVEN_PLUGIN_DATA_ENGINE_URL` env var — if the operator
  *      pointed plugins at a specific engine URL (most common in
  *      self-host setups), use that. We strip any trailing `/stream`
  *      since the var is sometimes set to the WebSocket URL.

@@ -27,7 +27,7 @@ export default function RootLayout({
         {process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID && (
           <meta name="google-adsense-account" content={process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID} />
         )}
-        {(process.env.NEXT_PUBLIC_GROND_EDITION === "demo") && process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID && (
+        {(process.env.NEXT_PUBLIC_MAVEN_EDITION === "demo") && process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID && (
           <Script
             id="adsbygoogle"
             async
@@ -44,7 +44,7 @@ export default function RootLayout({
       <body suppressHydrationWarning>
         {children}
         {process.env.VERCEL && <Analytics />}
-        {(process.env.NEXT_PUBLIC_GROND_ANALYTICS === "true") && (
+        {(process.env.NEXT_PUBLIC_MAVEN_ANALYTICS === "true") && (
           <Script
             src="https://analytics.grond.dev/script.js"
             data-website-id="2c8f6c09-2651-4a2a-af99-b8cee1612b9a"

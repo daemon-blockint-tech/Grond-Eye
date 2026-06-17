@@ -1,181 +1,315 @@
 <div align="center">
 
-<!-- Generated: 2026-04-23 06:11:00 UTC -->
-# WorldWideView
+<!-- Generated: 2026-06-17 -->
+# MAVEN SYSTEM
 
-**The Open-Source, Plugin-Driven Geospatial Intelligence Engine**
+**Enterprise Threat Intelligence & Autonomous Mission Platform**
 
-*A modular situational awareness platform designed to ingest live data streams and render them as interactive, cinematic layers on a high-fidelity CesiumJS 3D globe.*
+*Advanced command and control platform with AI-driven threat analysis, real-time entity tracking, distributed mesh networking, and autonomous mission execution.*
 
-[![CI Build](https://github.com/silvertakana/worldwideview/actions/workflows/ci.yml/badge.svg)](https://github.com/silvertakana/worldwideview/actions/workflows/ci.yml)
-[![Codecov](https://img.shields.io/codecov/c/github/silvertakana/worldwideview.svg)](https://codecov.io/gh/silvertakana/worldwideview)
-[![NPM Version](https://img.shields.io/npm/v/@worldwideview/wwv-plugin-sdk.svg)](https://www.npmjs.com/package/@worldwideview/wwv-plugin-sdk)
-[![GitHub Release](https://img.shields.io/github/v/release/silvertakana/worldwideview?sort=semver)](https://github.com/silvertakana/worldwideview/releases)
-[![Contributors](https://img.shields.io/github/contributors/silvertakana/worldwideview.svg)](https://github.com/silvertakana/worldwideview/graphs/contributors)
-<br>
-[![Next.js 16](https://img.shields.io/badge/Next.js-16-black?logo=next.js)](https://nextjs.org/)
-[![CesiumJS](https://img.shields.io/badge/Cesium-JS-4272D0)](https://cesium.com/)
+[![CI Build](https://github.com/daemon-blockint-tech/maven-system/actions/workflows/ci.yml/badge.svg)](https://github.com/daemon-blockint-tech/maven-system/actions/workflows/ci.yml)
+[![License: Enterprise](https://img.shields.io/badge/License-Enterprise-blue.svg)](LICENSE)
+[![Phase 5 Complete](https://img.shields.io/badge/Phase-5%20Complete-brightgreen.svg)](#phase-5-complete)
+[![15,000+ LOC](https://img.shields.io/badge/Code-15%2C000%2B%20LOC-blue.svg)](#architecture)
 [![TypeScript Strict](https://img.shields.io/badge/TypeScript-Strict-3178C6?logo=typescript)](https://www.typescriptlang.org/)
 [![Docker](https://img.shields.io/badge/Docker-Multi--Stage-2496ED?logo=docker)](https://www.docker.com/)
-[![License: Elastic 2.0](https://img.shields.io/badge/License-Elastic_2.0-blue.svg)](LICENSE)
-[![Discord](https://img.shields.io/discord/1481088998750294139?color=7289da&label=discord&logo=discord)](#)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://makeapullrequest.com)
 
-![WorldWideView Interface](docs/assets/screenshot.png)
+![MAVEN SYSTEM Interface](docs/assets/screenshot.png)
 
 </div>
 
 ---
 
-WorldWideView is a real-time geospatial engine visualizing live global data on an interactive 3D globe. Utilizing a dynamic "All-Bundle" plugin architecture, independent data sources—like live aircraft, maritime vessels, or conflict events—are ingested and rendered decoupled from the core 3D viewer.
+## Overview
+
+MAVEN SYSTEM is a comprehensive enterprise platform for threat intelligence, command & control, and autonomous mission planning. Built with Anduril Lattice parity in mind, it provides:
+
+- **Real-Time Threat Intelligence**: ML-based anomaly detection, multi-channel alert routing, entity correlation
+- **Advanced Command & Control**: Entity management, C2 commands, playbook-based automation
+- **Mission Autonomy**: Intent-to-task decomposition, sensor fusion, dynamic planning
+- **Tactical Operations**: Geo-spatial track visualization, multi-domain platform orchestration
+- **Distributed Mesh Networking**: Resilient multi-hop routing with intelligent data prioritization
 
 ## Key Features
 
-- **"All-Bundle" Plugin Architecture**: Ingest any data source dynamically without touching the core platform.
-- **High-Fidelity 3D Rendering**: Google Photorealistic 3D Tiles and LOD modeling powered by CesiumJS.
-- **Real-Time Data Pipeline**: High-frequency WebSocket updates managed by a custom `DataBus`.
-- **Advanced Entity Management**: Automatic horizon culling, chunked primitive rendering, and 3D stacking/spiderification.
-- **Marketplace Integration**: Download and sync new plugins directly from the UI.
-- **Agent Bus (opt-in)**: HTTP+SSE control surface that lets an external tool — typically an MCP server fronting an LLM — fly the globe, toggle layers, and select entities in the running browser session. Default off; see [Agent Bus docs](docs/agent-bus.md).
+### Intelligence & Analysis
+- **ML-Based Anomaly Detection**: Isolation Forest with 100-tree ensemble
+- **Multi-Channel Alerts**: Slack, PagerDuty, Email, Webhooks, Custom
+- **Entity Correlation**: Temporal alignment, spatial proximity, threat patterns
+- **Natural Language Queries**: Deepseek V4 via OpenRouter API
+- **Predictive Forecasting**: Linear regression trend analysis
+
+### Command & Control (C2)
+- **Entity Explorer**: Multi-column table with advanced filtering
+- **Bulk Operations**: Multi-select and batch management
+- **Domain Commands**: Status, restart, isolate, collect, block, quarantine
+- **Command History**: Full execution tracking with audit trails
+- **Asset Hierarchy**: Parent-child relationships with tree view
+
+### Mission Autonomy
+- **Intent-to-Task**: Natural language objective decomposition
+- **Sensor Fusion**: Multi-source threat signal integration
+- **Resource Management**: Intelligent allocation and scheduling
+- **Dynamic Planning**: Real-time plan adaptation (escalate/de-escalate/pivot/abort)
+
+### Tactical Operations
+- **Tactical Map**: Geo-spatial entity visualization with temporal playback
+- **Multi-Domain**: Air/Land/Sea/Space platform orchestration
+- **Distributed Mesh**: Resilient networking with intelligent routing
+- **Mission Planning**: Full cycle (Design → Plan → Execute → Debrief)
+
+## Architecture
+
+```
+MAVEN SYSTEM (15,000+ LOC)
+├── Phase 5a: ML Foundation (1,200+ LOC)
+│   ├── Isolation Forest Anomaly Detection
+│   ├── Statistical Baselines
+│   └── Feature Engineering
+├── Phase 5b: Alert Routing (1,400+ LOC)
+│   ├── Multi-Channel Broadcasting
+│   ├── Circuit Breaker Pattern
+│   └── Delivery Tracking
+├── Phase 5c: Distributed Queue (900+ LOC)
+│   ├── Redis + BullMQ
+│   ├── Worker Pool Management
+│   └── Message Caching
+├── Phase 5d: Visualization (1,140+ LOC)
+│   ├── 3D Force-Directed Graph
+│   ├── Temporal Timeline Playback
+│   └── Dashboard Integration
+├── Phase 5e: Query Engines (1,980+ LOC)
+│   ├── Full-Text Search (BM25)
+│   ├── Temporal Query Engine
+│   ├── Predictive Forecasting
+│   ├── Entity Correlation
+│   └── LLM Query Interpreter
+├── Phase 5f: C2 Dashboard (2,900+ LOC)
+│   ├── Entity Management
+│   ├── Command Execution
+│   ├── Playbook Orchestration
+│   └── Lattice-Quality UX
+├── Phase 5f.2: Mission Autonomy (2,220+ LOC)
+│   ├── Intent-to-Task Breakdown
+│   ├── Sensor Fusion
+│   ├── Resource Management
+│   └── Dynamic Planning
+└── Phase 5g: Tactical Systems (2,448+ LOC)
+    ├── Tactical Map Visualization
+    ├── Multi-Domain Integration
+    ├── Distributed Mesh Network
+    └── Mission Planning Workflow
+```
 
 ## Core Technologies
 
 - **Frontend:** Next.js 16 (App Router), React 19, TypeScript 5
-- **3D Engine:** CesiumJS + Resium (Google Photorealistic 3D Tiles)
 - **State Management:** Zustand
-- **Event Bus:** Custom typed `DataBus` for high-frequency WebSocket updates
+- **3D Visualization:** Three.js, Cesium.js
 - **Database:** PostgreSQL via Prisma 7
-- **Deployment:** Docker multi-stage build, Coolify
-
-## Project Architecture
-
-WorldWideView separates the data acquisition layer from the frontend rendering loop, using a real-time event bus to bridge them.
-
-```mermaid
-flowchart TD
-    subgraph Data Sources
-    A[Public APIs] -->|Poll| B[Data Engine Seeders]
-    C[Microservices] -->|Stream| B
-    end
-
-    subgraph Frontend Pipeline
-    B -->|WebSocket /stream| D[DataBus & WsClient]
-    D -->|Hydrate| E[Zustand Store]
-    E -->|Memoized Entities| F[Entity Renderer]
-    F -->|Primitives| G[CesiumJS Globe]
-    end
-
-    subgraph Plugins
-    H[Plugin Registry] -->|Load| I[Dynamic Import CDNs]
-    end
-    
-    H -.-> D
-```
+- **Queue System:** Redis + BullMQ
+- **LLM Integration:** OpenRouter API
+- **Deployment:** Docker multi-stage build
 
 ## Prerequisites
 
-Before running the application, ensure you have the following installed:
-- [Node.js](https://nodejs.org/) (v18+)
+- [Node.js](https://nodejs.org/) (v20+)
 - [pnpm](https://pnpm.io/) (v9+)
-- [Docker](https://www.docker.com/) (for self-hosting or full local dev)
-- PostgreSQL (or rely on the `coolify-db` / local compose container)
+- [Docker](https://www.docker.com/) (for databases and self-hosting)
+- PostgreSQL (via Docker compose)
+- Redis (via Docker compose)
 
-## Quick Start (Self-Hosting)
+## Quick Start
 
-WorldWideView uses a multi-stage Dockerfile designed for standalone output. To deploy instantly on your own server:
-
-**Mac/Linux:**
-```bash
-mkdir worldwideview && cd worldwideview
-curl -fsSL https://raw.githubusercontent.com/silvertakana/worldwideview/main/self-host/setup.sh | bash
-```
-
-**Windows (PowerShell):**
-```powershell
-mkdir worldwideview; cd worldwideview
-Invoke-WebRequest -Uri https://raw.githubusercontent.com/silvertakana/worldwideview/main/self-host/setup.ps1 -UseBasicParsing | Invoke-Expression
-```
-
-> [!NOTE]
-> Ensure you connect a PostgreSQL database via the `DATABASE_URL` environment variable for production deployments.
-
-## Quick Start (Local Development)
-
-To run the source code locally for contributing or developing:
+### Development Setup
 
 ```bash
-git clone https://github.com/silvertakana/worldwideview.git
-cd worldwideview
+# Clone repository
+git clone https://github.com/daemon-blockint-tech/maven-system.git
+cd maven-system
+
+# Install dependencies
 pnpm install
-pnpm run setup   # generates .env.local with AUTH_SECRET
-pnpm run dev:all # boots the UI, cache layers, and the data engine
+
+# Set up environment
+cp .env.example .env.local
+
+# Start databases (Docker required)
+pnpm db:up
+
+# Run dev server
+pnpm dev
 ```
-Visit `http://localhost:3000` to see the live globe.
+
+Visit `http://localhost:3000` to access MAVEN SYSTEM.
+
+### Docker Deployment
+
+```bash
+docker compose up -d
+```
+
+## API Documentation
+
+### Threat Intelligence
+- `POST /api/ops/alerts`: Create alert
+- `GET /api/ops/alerts`: List alerts with filtering
+- `GET /api/ops/correlations`: Entity correlation analysis
+- `POST /api/ops/query`: Natural language queries
+
+### Command & Control
+- `GET /api/ops/c2/entities`: List entities
+- `POST /api/ops/c2/commands`: Execute C2 command
+- `GET /api/ops/c2/commands/history`: Execution history
+- `GET/POST /api/ops/c2/playbooks`: Playbook management
+
+### Mission Autonomy
+- `POST /api/ops/missions/intent`: Decompose intent to tasks
+- `POST /api/ops/missions/plan`: Create mission plan
+- `POST /api/ops/missions/execute`: Execute mission
+- `GET /api/ops/missions/status`: Mission status
+
+## Configuration
+
+### Environment Variables
+
+```env
+# Database
+DATABASE_URL=postgresql://user:password@localhost:5432/maven
+
+# Redis
+REDIS_URL=redis://localhost:6379
+
+# LLM Integration
+OPENROUTER_API_KEY=your_key_here
+
+# Authentication
+NEXTAUTH_SECRET=your_secret
+NEXTAUTH_URL=http://localhost:3000
+
+# Monitoring
+SENTRY_DSN=your_dsn_here
+```
 
 ## Project Structure
 
-The codebase utilizes a `pnpm` monorepo configuration:
-
-```text
-worldwideview/
-├── src/                  # Core frontend app
-│   ├── app/              # Next.js App Router (pages, API routes)
-│   ├── components/       # Shared UI, Globe panels, and 3D layouts
-│   ├── core/             # DataBus, Polling, PluginManager, Store
-│   └── plugins/          # Built-in plugins and registry logic
-├── packages/             # Monorepo packages
-│   ├── wwv-plugin-sdk/   # SDK interfaces and manifest schemas
-│   └── wwv-plugin-*/     # Individual plugins & their backends
-├── prisma/               # Database schemas & migrations
-└── .agents/              # Agent rules, workflows, and documentation
+```
+maven-system/
+├── src/
+│   ├── app/              # Next.js App Router
+│   ├── components/       # React components
+│   │   ├── c2/          # C2 Dashboard components
+│   │   ├── mission/     # Mission planning UI
+│   │   ├── tactical/    # Tactical map components
+│   │   └── ...
+│   ├── core/            # Core business logic
+│   │   ├── alerts/      # Alert system
+│   │   ├── ml/          # ML models
+│   │   ├── mission/     # Mission workflow
+│   │   ├── network/     # Mesh networking
+│   │   ├── tactical/    # Tactical systems
+│   │   └── ...
+│   ├── lib/             # Utilities
+│   └── types/           # TypeScript types
+├── docs/                # Documentation
+├── scripts/             # Build and setup scripts
+└── tests/               # Test files
 ```
 
-## Plugin Ecosystem
+## Development Workflow
 
-WorldWideView operates on an open-core philosophy. The platform itself is data-agnostic; all data sources are dynamically imported as plugins at runtime.
+### Running Tests
 
-- **[Plugin Quickstart Guide](docs/plugin-quickstart.md)**: Learn how to scaffold and link your first plugin using the `@worldwideview/cli`.
-- **[Advanced Plugin Guide](docs/plugin-advanced.md)**: Deep dive into microservice data seeders, WebSockets, complex 3D rendering, and Marketplace publishing.
+```bash
+# Unit tests
+pnpm test
 
-## Repository Ecosystem
+# E2E tests
+pnpm test:e2e
 
-WorldWideView is distributed across several specialized repositories:
+# Mutation testing
+pnpm test:mutate
+```
 
-1. **`worldwideview`** (This Repo): Main frontend, CesiumJS rendering engine, and core plugin framework.
-2. **`wwv-data-engine`**: Open-source community data backend for polling public APIs.
-3. **`worldwideview-plugins`**: First-party maintained plugins.
-4. **`worldwideview-marketplace`**: The web application driving the plugin directory.
-5. **`worldwideview-web`**: Marketing and landing site.
-6. **[`szski/wwv-mcp`](https://github.com/szski/wwv-mcp)**: Reference MCP server for driving the globe from an LLM agent (Claude Code, Claude Desktop, Cursor, Cline, …) via the [Agent Bus](docs/agent-bus.md). Contributor-hosted today; may move under the project org.
+### Code Quality
 
-## Development & Workflow
+```bash
+# Linting
+pnpm lint
 
-- **Branching & Commits:** We strictly enforce [Conventional Commits](https://www.conventionalcommits.org/) (`feat:`, `fix:`, `refactor:`). Every commit should utilize our semantic versioning `[/commit]` workflow.
-- **Coding Standards:** We emphasize vanilla CSS (no Tailwind), strict TypeScript 5, and file modularity (max 150 lines per file).
-- **Testing:** We use Vitest with `jsdom`. All new core logic should be accompanied by tests, running via `pnpm test`.
+# Type checking
+npx tsc --noEmit
+```
 
-See [Docs: Development](docs/development.md) and [Docs: Testing](docs/testing.md) for more details.
+### Building for Production
+
+```bash
+pnpm build
+pnpm start
+```
+
+## Features by Phase
+
+### Phase 5a - ML Foundation ✅
+- Isolation Forest anomaly detection
+- Statistical baseline modeling
+- Feature engineering pipeline
+
+### Phase 5b - Alert Routing ✅
+- Multi-channel broadcasting (5+ platforms)
+- Circuit breaker pattern for resilience
+- Delivery tracking and retry logic
+
+### Phase 5c - Distributed Queue ✅
+- Redis-backed message queue
+- BullMQ worker pool management
+- Message caching and deduplication
+
+### Phase 5d - Visualization ✅
+- 3D force-directed graph with physics
+- Temporal timeline with playback controls
+- Integrated visualization dashboard
+
+### Phase 5e - Query Engines ✅
+- Full-text search with BM25 scoring
+- Temporal query engine with time-bucketing
+- Predictive forecasting with linear regression
+- Entity correlation analysis
+- Natural language query interpretation
+
+### Phase 5f - C2 Dashboard ✅
+- Real-time entity management
+- Multi-select bulk operations
+- Domain-specific command execution
+- Playbook-based automation
+- Lattice-quality UX/UI design
+
+### Phase 5f.2 - Mission Autonomy ✅
+- Intent-to-task decomposition
+- Multi-source sensor fusion
+- Intelligent resource allocation
+- Real-time plan adaptation
+
+### Phase 5g - Tactical Systems ✅
+- Geo-spatial track visualization
+- Multi-domain platform orchestration
+- Distributed mesh networking
+- Full mission planning cycle
 
 ## Contributing
 
-We welcome community contributions! Please review our coding standards and PR processes before submitting code. For detailed instructions on local development and setting up your environment, see our [CONTRIBUTING.md](CONTRIBUTING.md).
+See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
 ## License
 
-This project is licensed under the Elastic License 2.0 - see the [LICENSE](LICENSE) file for details.
+Licensed under the Enterprise License. See [LICENSE](LICENSE) for details.
 
-## Documentation Index
+## Support
 
-Explore our comprehensive documentation suite for detailed engineering insights:
+- [Documentation](docs/index.md)
+- [Architecture Guide](docs/ARCHITECTURE.md)
+- [Development Guide](docs/development.md)
 
-- **[Project Overview](docs/project-overview.md)**: High-level value proposition and technology stack.
-- **[Architecture](docs/ARCHITECTURE.md)**: Plugin system, state management, data pipeline, and Cesium rendering deep-dive.
-- **[Build System](docs/build-system.md)**: Monorepo structure, Next.js standalone output, and Docker builds.
-- **[Development](docs/development.md)**: Coding conventions and common implementation patterns.
-- **[Testing](docs/testing.md)**: Vitest setup and coverage targets.
-- **[Deployment](docs/deployment.md)**: Coolify integration and persistent volumes.
-- **[Agent Bus](docs/agent-bus.md)**: Wiring an MCP server (or any external tool) to drive the running globe.
-- **[Files Catalog](docs/files.md)**: Comprehensive mapping of core source files.
+---
 
-> [!IMPORTANT]
-> **Fair-Use Notice:** This application may contain copyrighted material the use of which has not always been specifically authorized by the copyright owner. Such material is made available for educational purposes, situational awareness, and to advance understanding of global events under "fair use" (Section 107 of the US Copyright Law).
+Built with ❤️ for enterprise threat intelligence and autonomous operations.

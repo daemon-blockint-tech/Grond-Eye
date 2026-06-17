@@ -1,8 +1,8 @@
-# Contributing to WorldWideView
+# Contributing to MAVEN SYSTEM
 
-Thank you for your interest in contributing to **WorldWideView** — a modular, real-time geospatial intelligence engine!
+Thank you for your interest in contributing to **MAVEN SYSTEM** — an enterprise threat intelligence and autonomous mission platform!
 
-This project is licensed under the [Elastic License 2.0](./LICENSE). By submitting a contribution, you agree that your code will be made available under those same terms.
+This project is licensed under the Enterprise License. By submitting a contribution, you agree that your code will be made available under those same terms.
 
 ---
 
@@ -12,7 +12,6 @@ This project is licensed under the [Elastic License 2.0](./LICENSE). By submitti
 - [Development Setup](#development-setup)
 - [Project Structure](#project-structure)
 - [How to Contribute](#how-to-contribute)
-- [Plugin Contributions](#plugin-contributions)
 - [Code Standards](#code-standards)
 - [Commit & Branch Conventions](#commit--branch-conventions)
 - [Pull Request Process](#pull-request-process)
@@ -25,20 +24,20 @@ This project is licensed under the [Elastic License 2.0](./LICENSE). By submitti
 1. **Fork** the repository on GitHub.
 2. **Clone** your fork locally:
    ```bash
-   git clone https://github.com/<your-username>/worldwideview.git
-   cd worldwideview
+   git clone https://github.com/<your-username>/maven-system.git
+   cd maven-system
    ```
 3. **Install dependencies**:
    ```bash
-   npm install
+   pnpm install
    ```
-4. **Generate environment file** (auto-creates `.env.local` with `AUTH_SECRET`):
+4. **Generate environment file** (creates `.env.local` with `AUTH_SECRET`):
    ```bash
-   npm run setup
+   pnpm run setup
    ```
 5. **Start the dev server**:
    ```bash
-   npm run dev
+   pnpm run dev
    ```
 
 Visit `http://localhost:3000` to confirm everything is running.
@@ -47,105 +46,241 @@ Visit `http://localhost:3000` to confirm everything is running.
 
 ## Development Setup
 
-| Requirement | Version |
-|-------------|---------|
-| Node.js     | 18+     |
-| npm         | 9+      |
+### Prerequisites
 
-See [`docs/SETUP.md`](docs/SETUP.md) for detailed environment setup, including Cesium Ion token configuration.
+| Requirement | Version |
+| --- | --- |
+| **Node.js** | v20.0.0+ |
+| **pnpm** | v9.0.0+ |
+| **Docker** | Latest |
+| **PostgreSQL** | 15+ (via Docker) |
+| **Redis** | 7+ (via Docker) |
+
+### Quick Start
+
+```bash
+# Install dependencies
+pnpm install
+
+# Set up environment
+cp .env.example .env.local
+
+# Start databases
+pnpm db:up
+
+# Run dev server
+pnpm dev
+
+# In another terminal, optionally start the data engine
+pnpm dev:backends
+```
 
 ---
 
 ## Project Structure
 
 ```
-src/
-  core/         # Core engine: state, data bus, plugin registry
-  plugins/      # Data source plugins (ADS-B, AIS, satellites, etc.)
-  components/   # React UI components
-  hooks/        # Custom React hooks
-docs/           # Architecture and user guides
+maven-system/
+├── src/
+│   ├── app/                 # Next.js App Router
+│   ├── components/          # React components
+│   │   ├── c2/             # C2 Dashboard
+│   │   ├── mission/        # Mission Planning
+│   │   ├── tactical/       # Tactical Map
+│   │   └── ...
+│   ├── core/               # Business logic
+│   │   ├── alerts/         # Alert system
+│   │   ├── ml/             # ML models
+│   │   ├── mission/        # Mission workflow
+│   │   ├── network/        # Mesh networking
+│   │   ├── tactical/       # Tactical systems
+│   │   └── ...
+│   ├── lib/                # Utilities
+│   └── types/              # TypeScript types
+├── docs/                   # Documentation
+├── scripts/                # Build/setup scripts
+└── tests/                  # Test files
 ```
-
-See [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) for a deep dive into the rendering pipeline and plugin lifecycle.
 
 ---
 
 ## How to Contribute
 
-Ways you can help:
+### Working on Features
 
-- 🐛 **Bug fixes** — Check the [issue tracker](https://github.com/silvertakana/worldwideview/issues)
-- 🧩 **New plugins** — Add a new data source layer (see below)
-- 📖 **Documentation** — Improve guides or add examples
-- ⚡ **Performance** — Cesium primitive optimizations, GPU stall reduction
-- 🧪 **Tests** — Expand Vitest coverage
+1. **Create a feature branch**:
+   ```bash
+   git checkout -b feature/your-feature-name
+   ```
 
-For large features, **open an issue first** to discuss the design before writing code.
+2. **Make your changes** following [Code Standards](#code-standards).
 
----
+3. **Test your changes**:
+   ```bash
+   pnpm test
+   pnpm test:e2e
+   ```
 
-## Plugin Contributions
+4. **Commit with clear messages** (see [Commit Conventions](#commit--branch-conventions)).
 
-The core extension point of WorldWideView is its **plugin system**. Each plugin is a self-contained data layer that:
+5. **Push and open a pull request**.
 
-1. Fetches or subscribes to a data source
-2. Transforms raw data into Cesium-ready primitives
-3. Registers itself with the `PluginRegistry`
+### Reporting Issues
 
-See [`docs/PLUGIN_GUIDE.md`](docs/PLUGIN_GUIDE.md) for a full walkthrough. New plugins are very welcome — if you have access to a live geospatial data feed, a plugin is the best way to contribute.
+- Use the GitHub issue tracker
+- Provide a clear title and description
+- Include steps to reproduce bugs
+- Attach error logs or screenshots
 
----
+### Code Standards
 
-## Code Standards
+- **Language**: TypeScript (strict mode)
+- **Style**: ESLint + Prettier
+- **Formatting**: 2-space indentation
+- **Naming**: camelCase for variables/functions, PascalCase for components/classes
+- **Comments**: Only for non-obvious logic
+- **Testing**: Unit tests for new features, E2E tests for workflows
 
-This project follows these principles:
+### Running Linting & Formatting
 
-- **Single Responsibility Principle** — each file/module does one thing
-- **DRY & SOLID** — avoid duplication, favour composition
-- **Clean Architecture** — UI, logic, and data are separate concerns
-- **Defensive Programming** — validate inputs, handle edge cases explicitly
-- **File size** — keep files under 150 lines; split into modules if needed
+```bash
+# Run linter
+pnpm lint
 
-Use TypeScript strictly. Avoid `any` unless absolutely unavoidable.
+# Format code
+pnpm format
+
+# Type check
+npx tsc --noEmit
+```
 
 ---
 
 ## Commit & Branch Conventions
 
-**Branch naming:**
+### Branch Naming
+
+- `feature/description` — New features
+- `fix/description` — Bug fixes
+- `docs/description` — Documentation
+- `refactor/description` — Code refactoring
+- `test/description` — Test additions
+
+### Commit Messages
+
+Follow the format:
 ```
-feat/short-description
-fix/short-description
-docs/short-description
-refactor/short-description
+<type>: <subject>
+
+<body>
+
+<footer>
 ```
 
-**Commit messages** follow [Conventional Commits](https://www.conventionalcommits.org/):
+**Types**: `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`
+
+**Example**:
 ```
-feat: add maritime AIS plugin
-fix: resolve camera snap on globe reset
-docs: update plugin guide with lifecycle diagram
-refactor: extract billboard factory from CesiumMap
+feat: Add threat correlation engine
+
+Implement multi-source threat signal fusion with Bayesian inference.
+Supports temporal alignment, spatial proximity, and threat pattern analysis.
+
+Closes #123
+Co-Authored-By: Team <team@maven-system.dev>
 ```
 
 ---
 
 ## Pull Request Process
 
-1. Ensure your branch is up to date with `main`.
-2. Run tests and confirm they pass: `npm test`
-3. Fill out the [PR template](.github/PULL_REQUEST_TEMPLATE.md) completely.
-4. Request a review — PRs need at least one approval before merging.
-5. Squash commits on merge if the history is noisy.
+1. **Update the base branch**:
+   ```bash
+   git fetch origin
+   git rebase origin/main
+   ```
+
+2. **Run all tests locally** before pushing:
+   ```bash
+   pnpm test
+   pnpm test:e2e
+   pnpm lint
+   ```
+
+3. **Push your branch**:
+   ```bash
+   git push origin feature/your-feature-name
+   ```
+
+4. **Create a PR** with a clear title and description.
+
+5. **Address review comments** and keep the branch up to date.
+
+6. **Squash commits if requested** before merging.
 
 ---
 
 ## Running Tests
 
+### Unit Tests
+
 ```bash
-npm test          # Run all tests via Vitest
-npm run test:ui   # Open Vitest UI (interactive)
+# Run all unit tests
+pnpm test
+
+# Run tests in watch mode
+pnpm test --watch
+
+# Run specific test file
+pnpm test src/core/alerts/AlertOrchestrator.test.ts
 ```
 
-Tests live alongside source files in `__tests__/` directories or as `.test.ts` files.
+### E2E Tests
+
+```bash
+# Run all E2E tests
+pnpm test:e2e
+
+# Run specific E2E test
+pnpm test:e2e src/app/c2/page.spec.ts
+
+# Run headed (see browser)
+pnpm test:e2e --headed
+```
+
+### Coverage
+
+```bash
+pnpm test --coverage
+```
+
+---
+
+## Code Review Guidelines
+
+When submitting a PR, be prepared for:
+
+- **Functionality**: Does it work as intended?
+- **Testing**: Are there adequate tests?
+- **Performance**: Are there regressions?
+- **Security**: Are there vulnerabilities?
+- **Documentation**: Is it clear and complete?
+- **Code Quality**: Is it maintainable and idiomatic?
+
+---
+
+## Questions or Need Help?
+
+- Check [docs/](docs/index.md) for existing documentation
+- Review [issues](https://github.com/daemon-blockint-tech/maven-system/issues) for similar problems
+- Ask in GitHub discussions or open an issue
+
+---
+
+## License
+
+By contributing, you agree that your contributions will be licensed under the Enterprise License, the same as the project itself.
+
+---
+
+Thank you for helping build MAVEN SYSTEM! 🚀

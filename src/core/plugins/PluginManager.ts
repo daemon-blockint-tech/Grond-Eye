@@ -75,7 +75,7 @@ class PluginManager {
 
     /**
      * Registers a new plugin and establishes its execution environment.
-     * This method is responsible for injecting `NEXT_PUBLIC_GROND_PLUGIN_*` environment
+     * This method is responsible for injecting `NEXT_PUBLIC_MAVEN_PLUGIN_*` environment
      * variables, resolving the correct Data Engine URLs, and setting up the
      * pub/sub routing for the plugin's data updates and error telemetry.
      *
@@ -91,8 +91,8 @@ class PluginManager {
         const envVars: Record<string, string> = {};
         if (typeof process !== "undefined" && process.env) {
             for (const [key, value] of Object.entries(process.env)) {
-                if (key.startsWith("NEXT_PUBLIC_GROND_PLUGIN_")) {
-                    envVars[key.replace("NEXT_PUBLIC_GROND_PLUGIN_", "")] = value || "";
+                if (key.startsWith("NEXT_PUBLIC_MAVEN_PLUGIN_")) {
+                    envVars[key.replace("NEXT_PUBLIC_MAVEN_PLUGIN_", "")] = value || "";
                 } else if (key.startsWith("NEXT_PUBLIC_WWV_PLUGIN_")) {
                     envVars[key.replace("NEXT_PUBLIC_WWV_PLUGIN_", "")] = value || "";
                 }
@@ -101,7 +101,7 @@ class PluginManager {
 
         // Next.js inlines `process.env.NEXT_PUBLIC_*` only at known static
         // reference sites. The iteration above can come back empty in the
-        // browser bundle even when NEXT_PUBLIC_GROND_PLUGIN_* is set at build,
+        // browser bundle even when NEXT_PUBLIC_MAVEN_PLUGIN_* is set at build,
         // because `Object.entries(process.env)` is not a static reference and
         // the bundler doesn't expose every NEXT_PUBLIC_ key on the runtime
         // object. Add explicit static references so the values reach plugin

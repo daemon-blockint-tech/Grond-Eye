@@ -12,11 +12,11 @@ const byUser = new Map<string, UserRuntime>();
 
 declare global {
     // eslint-disable-next-line no-var
-    var __GROND_SCENARIO_RUNTIME__: Map<string, UserRuntime> | undefined;
+    var __MAVEN_SCENARIO_RUNTIME__: Map<string, UserRuntime> | undefined;
 }
 
 const store: Map<string, UserRuntime> =
-    globalThis.__GROND_SCENARIO_RUNTIME__ ?? (globalThis.__GROND_SCENARIO_RUNTIME__ = byUser);
+    globalThis.__MAVEN_SCENARIO_RUNTIME__ ?? (globalThis.__MAVEN_SCENARIO_RUNTIME__ = byUser);
 
 /**
  * Persist current entities for a user's active scenario.

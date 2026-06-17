@@ -9,7 +9,7 @@ import type {
   EntityDomain,
   Disposition,
   Confidence,
-} from '@grond/plugin-sdk';
+} from '@maven-system/plugin-sdk';
 import type { QueryResultEntity, ThreatAssessmentResult } from './queryTypes';
 
 /**

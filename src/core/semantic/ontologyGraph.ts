@@ -12,7 +12,7 @@ import type {
   EntityContext,
   EntityType,
   Confidence,
-} from '@grond/plugin-sdk';
+} from '@maven-system/plugin-sdk';
 import { SemanticStore } from './semanticStore';
 
 interface QueryResult {
